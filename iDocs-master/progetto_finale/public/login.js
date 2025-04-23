@@ -2,6 +2,9 @@ export const createLogin = () => {
   const inputName = document.querySelector("#user");     // username
   const inputPassword = document.querySelector("#psw");  // password
   const loginButton = document.getElementById("loginBtn");
+  const loginLink = document.querySelector('.nav-right a[href="#login"]'); // Link login nella navbar
+  const dashboardButton = document.getElementById("dashboardBtn"); // Pulsante dashboard
+  const logoutButton = document.getElementById("logoutBtn"); // Pulsante logout
   const esitoLog = document.getElementById("esitoLog");
   const loginModal = document.getElementById("loginModal");
   let isLogged = false;
@@ -26,14 +29,24 @@ export const createLogin = () => {
         // Login riuscito
         isLogged = true;
 
+        // Nascondi la modale di login e rimuovi il backdrop
         loginModal.classList.add("hidden");
         document.body.classList.remove('modal-open');
         const backdrop = document.querySelector('.modal-backdrop');
         if (backdrop) backdrop.remove();
 
+        // Nascondi il link del login nella navbar
+        if (loginLink) {
+          loginLink.style.display = "none"; // Nascondi il link del login
+        }
+
+        // Aggiorna l'interfaccia con il logout e la dashboard
         alert("Benvenuto, " + utente.nome + "!");
-        loginButton.style.display = "none";
-        localStorage.setItem("utente", JSON.stringify(utente));
+        loginButton.style.display = "none"; // Nascondi il pulsante login
+        logoutButton.style.display = "block"; // Mostra il pulsante logout
+        dashboardButton.style.display = "block"; // Mostra il pulsante dashboard
+        localStorage.setItem("utente", JSON.stringify(utente)); // Salva utente in localStorage
+        sessionStorage.setItem("userId", utente.id);
       })
       .catch(error => {
         console.error("Errore durante il login:", error);
@@ -42,10 +55,37 @@ export const createLogin = () => {
       });
   };
 
+  // Logica per il logout
+  if (logoutButton) {
+    logoutButton.onclick = () => {
+      localStorage.removeItem("utente"); // Rimuovi l'utente dalla sessione
+      isLogged = false;
+
+      // Mostra nuovamente il pulsante login e nascondi gli altri
+      if (loginLink) loginLink.style.display = "block"; // Mostra il link del login
+      loginButton.style.display = "block";
+      logoutButton.style.display = "none";
+      dashboardButton.style.display = "none";
+      alert("Sei uscito dall'account.");
+      window.location.href = "#homepage"; // Torna alla homepage
+    };
+  }
+
+  // Pulsante per andare alla dashboard
+  if (dashboardButton) {
+    dashboardButton.onclick = () => {
+      window.location.href = "#dashboard"; // Vai alla pagina della dashboard
+    };
+  }
+
   return {
     isLogged: () => isLogged
   };
 };
+
+
+
+
 
 
 function openRegisterModal() {

@@ -9,20 +9,26 @@
 <body>
 
   <nav>
+    <div class="nav-left">
+      <a href="#homepage">Home</a> 
+    </div>
     <div class="nav-center">
       <h1 class="site-title">Studenti Eventi</h1>
     </div>
     <div class="nav-right">
       <a href="#login">Login</a>
+      <button id="dashboardBtn" class="hidden">Dashboard</button>
+      <button id="logoutBtn" class="hidden">Logout</button> 
     </div>
   </nav>
+  
 
   <main>
-    <!-- Pagina pubblica -->
-    <section id="public-page" class="page visible">
+    <!-- Pagina pubblica (Homepage) -->
+    <section id="homepage" class="page visible">
       <h2>Eventi pubblici</h2>
-      <div id="eventi-container">
-        <!-- Eventi caricati via JS -->
+      <div id="eventiPubblici">
+        <!-- Gli eventi verranno inseriti dinamicamente qui -->
       </div>
     </section>
 
@@ -34,7 +40,7 @@
       </div>
     </section>
 
-    <!-- Dashboard privata -->
+        <!-- Dashboard privata -->
     <section id="dashboard" class="page hidden">
       <h2>La mia Dashboard</h2>
       <div id="my-events">
@@ -43,31 +49,46 @@
       <button id="add-event-btn">Aggiungi Evento</button>
     </section>
 
-    <!-- Login -->
+    <div id="addEventModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn" id="closeAddEvent">&times;</span>
+        <h2>Nuovo Evento</h2>
+        <input type="text" id="eventTitle" placeholder="Titolo evento" required />
+        <input type="date" id="eventDate" required />
+        <textarea id="eventDescription" placeholder="Descrizione evento" rows="4" required></textarea>
+        <button id="creaEventoBtn">Crea</button>
+      </div>
+    </div>
+    
+
+    
+
+    <!-- Modal di login -->
     <div id="loginModal" class="modal hidden">
-        <div class="modal-content">
-          <span id="closeLogin" class="close-btn">&times;</span>
-          <h2>Login</h2>
-          <input type="text" id="user" placeholder="Nome utente" required />
-          <input type="password" id="psw" placeholder="Password" required />
-          <button id="loginBtn">Accedi</button>
-          <div id="esitoLog"></div>
-          <div class="register-message">
-            Non hai un account? <a href="#" id="register-link">Registrati qui</a>
-          </div>
+      <div class="modal-content">
+        <span id="closeLogin" class="close-btn">&times;</span>
+        <h2>Login</h2>
+        <input type="text" id="user" placeholder="Nome utente" required />
+        <input type="password" id="psw" placeholder="Password" required />
+        <button id="loginBtn">Accedi</button>
+        <div id="esitoLog"></div>
+        <div class="register-message">
+          Non hai un account? <a href="#" id="register-link">Registrati qui</a>
         </div>
       </div>
-      <!-- Modal per la registrazione -->
-      <div id="registerModal" class="modal hidden">
-        <div class="modal-content">
-          <span id="closeRegister" class="close-btn">&times;</span>
-          <h2>Registrati</h2>
-          <input type="text" id="newUser" placeholder="Nome utente" required />
-          <input type="email" id="newEmail" placeholder="Email" required />
-          <input type="password" id="newPassword" placeholder="Password" required />
-          <button id="registerBtn">Registrati</button>
-        </div>
+    </div>
+
+    <!-- Modal per la registrazione -->
+    <div id="registerModal" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeRegister" class="close-btn">&times;</span>
+        <h2>Registrati</h2>
+        <input type="text" id="newUser" placeholder="Nome utente" required />
+        <input type="email" id="newEmail" placeholder="Email" required />
+        <input type="password" id="newPassword" placeholder="Password" required />
+        <button id="registerBtn">Registrati</button>
       </div>
+    </div>
 
   </main>
 

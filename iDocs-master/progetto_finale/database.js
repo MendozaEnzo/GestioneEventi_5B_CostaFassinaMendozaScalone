@@ -142,8 +142,15 @@ const database = {
     },
 
     getEventi: () => {
-        return executeQuery(`SELECT * FROM evento`);
+        return executeQuery(`
+            SELECT evento.*, utente.nome AS creatore
+            FROM evento
+            JOIN utente ON evento.creatore_id = utente.id;
+
+
+        `);
     },
+
 
     getEventiByCreatore: (creatore_id) => {
         return executeQuery(`SELECT * FROM evento WHERE creatore_id = ?`, [creatore_id]);
