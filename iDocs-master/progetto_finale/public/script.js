@@ -1,7 +1,6 @@
 import { createLogin } from './login.js';
 import { createNavigator } from "./navigator.js";
 
-// Apertura login modal
 const loginLink = document.querySelector('.nav-right a[href="#login"]');
 const closeBtn = document.getElementById("closeLogin");
 
@@ -22,31 +21,21 @@ if (closeBtn) {
   };
 }
 
-// Login e navigazione
 createLogin();
 createNavigator(document.querySelector("main"));
 
-// Navigazione verso la dashboard
 document.getElementById("dashboardBtn").onclick = function () {
   location.hash = "#dashboard";
 };
 
-// Navigazione verso homepage dopo logout
-document.getElementById("logoutBtn").onclick = function () {
-  location.hash = "#homepage";
-};
-
-// Mostra modale evento
 document.getElementById("add-event-btn").onclick = function () {
   apriModaleEvento();
 };
 
-// Chiudi modale evento
 document.getElementById("closeAddEvent").onclick = function () {
   chiudiModaleEvento();
 };
 
-// Crea evento
 document.getElementById("creaEventoBtn").onclick = function () {
   creaEvento();
 };
@@ -65,20 +54,17 @@ async function creaEvento() {
   const descrizione = document.getElementById("eventDescription").value;
   const userId = sessionStorage.getItem("userId");
 
-  // Controllo se l'utente è loggato
   if (!userId) {
     alert("Devi essere loggato per creare un evento.");
     return;
   }
 
-  // Controllo se tutti i campi sono stati riempiti
   if (!titolo || !data || !descrizione) {
     alert("Compila tutti i campi.");
     return;
   }
 
   try {
-    // Invia la richiesta per creare l'evento
     await fetch("/evento", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -86,23 +72,20 @@ async function creaEvento() {
         titolo,
         data,
         descrizione,
-        creatore_id: userId  // Passa l'ID dell'utente loggato
+        creatore_id: userId
       })
     });
 
-    // Se l'evento è stato creato con successo
     chiudiModaleEvento();
     document.getElementById("eventTitle").value = "";
     document.getElementById("eventDate").value = "";
     document.getElementById("eventDescription").value = "";
-
-    // Ricarica la lista degli eventi personali, se la funzione è definita
+    await caricaEventiPubblici();
     if (typeof caricaEventiPersonali === "function") {
       caricaEventiPersonali();
     }
 
   } catch (error) {
-    // Gestione degli errori nel caso di problemi con la creazione dell'evento
     console.error("Errore nella creazione dell'evento:", error);
     alert("Si è verificato un errore nella creazione dell'evento. Riprova più tardi.");
   }
@@ -110,29 +93,26 @@ async function creaEvento() {
 
 async function caricaEventiPubblici() {
   try {
-    const response = await fetch('/eventi'); // Chiamata per ottenere gli eventi dal server
+    const response = await fetch('/eventi');
     if (!response.ok) {
       throw new Error('Impossibile recuperare gli eventi');
     }
 
-    const eventi = await response.json(); // Ottieni gli eventi in formato JSON
+    const eventi = await response.json();
     console.log(eventi);
-    // Se non ci sono eventi, mostra un messaggio
+
     if (eventi.length === 0) {
       document.getElementById("eventiPubblici").innerHTML = "Non ci sono eventi pubblici.";
       return;
     }
 
-    // Altrimenti, mostra gli eventi
     const eventiContainer = document.getElementById("eventiPubblici");
-    eventiContainer.innerHTML = ""; // Pulisci il contenuto precedente
+    eventiContainer.innerHTML = "";
 
-    // Creare il contenuto HTML da aggiungere
     let eventiHTML = '';
 
     eventi.forEach(evento => {
-      // Gestisci il caso in cui il campo "creatore" sia undefined
-      const creatore = evento.creatore || "Creatore sconosciuto"; // Se "creatore" è undefined, mostra "Creatore sconosciuto"
+      const creatore = evento.creatore || "Creatore sconosciuto";
 
       eventiHTML += `
         <div class="evento"> 
@@ -144,7 +124,6 @@ async function caricaEventiPubblici() {
       `;
     });
 
-    // Aggiungi il contenuto HTML all'interno del container
     eventiContainer.innerHTML = eventiHTML;
 
   } catch (error) {
@@ -153,7 +132,61 @@ async function caricaEventiPubblici() {
   }
 }
 
-// Esegui la funzione al caricamento della pagina
-caricaEventiPubblici(); // Carica gli eventi pubblici quando la pagina è pronta
+document.getElementById("dashboardBtn").onclick = function () {
+  location.hash = "#dashboard";
+  caricaEventiPersonali();
+};
 
+async function caricaEventiPersonali() {
+  const userId = sessionStorage.getItem("userId");
 
+  if (!userId) {
+    console.log("Nessun utente loggato");
+    return;
+  }
+
+  try {
+    const response = await fetch("/eventi");
+    if (!response.ok) {
+      throw new Error('Impossibile recuperare gli eventi');
+    }
+
+    const eventi = await response.json();
+    console.log("Eventi caricati:", eventi);
+
+    const container = document.getElementById("my-events");
+    if (!container) {
+      console.error("Contenitore degli eventi non trovato!");
+      return;
+    }
+
+    container.innerHTML = "";
+
+    const mieiEventi = eventi.filter(evento => evento.creatore_id === parseInt(userId));
+    console.log("Miei eventi:", mieiEventi);
+
+    if (mieiEventi.length === 0) {
+      container.innerHTML = "Non hai creato eventi.";
+    } else {
+      let eventiHTML = "";
+
+      mieiEventi.forEach(evento => {
+        eventiHTML += `
+          <div class="evento-personale">
+            <div class="info">
+              <h4>${evento.titolo}</h4>
+              <p>${new Date(evento.data).toLocaleDateString()}</p>
+            </div>
+            <button class="manage-btn">Manage</button>
+          </div>
+        `;
+      });
+
+      container.innerHTML = eventiHTML;
+    }
+  } catch (err) {
+    console.error("Errore nel caricamento dei tuoi eventi", err);
+  }
+}
+
+caricaEventiPubblici();

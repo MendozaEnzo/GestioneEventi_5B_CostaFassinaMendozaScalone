@@ -16,9 +16,9 @@
       <h1 class="site-title">Studenti Eventi</h1>
     </div>
     <div class="nav-right">
-      <a href="#login">Login</a>
-      <button id="dashboardBtn" class="hidden">Dashboard</button>
-      <button id="logoutBtn" class="hidden">Logout</button> 
+      <a href="#login" class="nav-link">Login</a>
+      <button id="dashboardBtn" class="hidden nav-btn">Dashboard</button>
+      <button id="logoutBtn" class="hidden nav-btn">Logout</button> 
     </div>
   </nav>
   
@@ -26,9 +26,15 @@
   <main>
     <!-- Pagina pubblica (Homepage) -->
     <section id="homepage" class="page visible">
-      <h2>Eventi pubblici</h2>
-      <div id="eventiPubblici">
-        <!-- Gli eventi verranno inseriti dinamicamente qui -->
+      <h2>Bacheca Eventi</h2>
+
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="cerca eventi: .........">
+        <button id="searchBtn">🔍</button>
+      </div>
+
+      <div id="eventiPubblici" class="eventi-list">
+       
       </div>
     </section>
 
@@ -36,18 +42,24 @@
     <section id="event-detail" class="page hidden">
       <h2>Dettaglio Evento</h2>
       <div id="dettaglio-container">
-        <!-- Post dell'evento dinamici -->
+        
       </div>
     </section>
 
         <!-- Dashboard privata -->
-    <section id="dashboard" class="page hidden">
-      <h2>La mia Dashboard</h2>
-      <div id="my-events">
-        <!-- Elenco eventi personali -->
-      </div>
-      <button id="add-event-btn">Aggiungi Evento</button>
-    </section>
+        <section id="dashboard" class="page hidden dashboard-container">
+          <h2>Dashboard privata</h2>
+        
+          <div class="add-event-wrapper">
+            <button id="add-event-btn" class="add-event-btn">+ aggiungi evento</button>
+          </div>
+        
+          <h3>I miei eventi:</h3>
+          <div id="my-events" class="eventi-personali-list">
+            
+          </div>
+        </section>
+        
 
     <div id="addEventModal" class="modal hidden">
       <div class="modal-content">

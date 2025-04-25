@@ -1,15 +1,14 @@
 export const createLogin = () => {
-  const inputName = document.querySelector("#user");     // username
-  const inputPassword = document.querySelector("#psw");  // password
+  const inputName = document.querySelector("#user");
+  const inputPassword = document.querySelector("#psw");
   const loginButton = document.getElementById("loginBtn");
-  const loginLink = document.querySelector('.nav-right a[href="#login"]'); // Link login nella navbar
-  const dashboardButton = document.getElementById("dashboardBtn"); // Pulsante dashboard
-  const logoutButton = document.getElementById("logoutBtn"); // Pulsante logout
+  const loginLink = document.querySelector('.nav-right a[href="#login"]');
+  const dashboardButton = document.getElementById("dashboardBtn");
+  const logoutButton = document.getElementById("logoutBtn");
   const esitoLog = document.getElementById("esitoLog");
   const loginModal = document.getElementById("loginModal");
   let isLogged = false;
 
-  // Logica di login
   loginButton.onclick = () => {
     const nome = inputName.value;
     const password = inputPassword.value;
@@ -26,27 +25,23 @@ export const createLogin = () => {
         return res.json();
       })
       .then(utente => {
-        // Login riuscito
+        sessionStorage.setItem("username", utente.nome);
+        sessionStorage.setItem("userId", utente.id);
         isLogged = true;
 
-        // Nascondi la modale di login e rimuovi il backdrop
         loginModal.classList.add("hidden");
         document.body.classList.remove('modal-open');
         const backdrop = document.querySelector('.modal-backdrop');
         if (backdrop) backdrop.remove();
 
-        // Nascondi il link del login nella navbar
         if (loginLink) {
-          loginLink.style.display = "none"; // Nascondi il link del login
+          loginLink.style.display = "none";
         }
 
-        // Aggiorna l'interfaccia con il logout e la dashboard
         alert("Benvenuto, " + utente.nome + "!");
-        loginButton.style.display = "none"; // Nascondi il pulsante login
-        logoutButton.style.display = "block"; // Mostra il pulsante logout
-        dashboardButton.style.display = "block"; // Mostra il pulsante dashboard
-        localStorage.setItem("utente", JSON.stringify(utente)); // Salva utente in localStorage
-        sessionStorage.setItem("userId", utente.id);
+        loginButton.style.display = "none";
+        logoutButton.style.display = "block";
+        dashboardButton.style.display = "block";
       })
       .catch(error => {
         console.error("Errore durante il login:", error);
@@ -55,26 +50,26 @@ export const createLogin = () => {
       });
   };
 
-  // Logica per il logout
   if (logoutButton) {
     logoutButton.onclick = () => {
-      localStorage.removeItem("utente"); // Rimuovi l'utente dalla sessione
+      sessionStorage.removeItem("username");
+      sessionStorage.removeItem("userId");
       isLogged = false;
-
-      // Mostra nuovamente il pulsante login e nascondi gli altri
-      if (loginLink) loginLink.style.display = "block"; // Mostra il link del login
+      inputName.value = "";
+      inputPassword.value = "";
+    
+      if (loginLink) loginLink.style.display = "block";
       loginButton.style.display = "block";
       logoutButton.style.display = "none";
       dashboardButton.style.display = "none";
       alert("Sei uscito dall'account.");
-      window.location.href = "#homepage"; // Torna alla homepage
+      window.location.href = "#homepage";
     };
   }
 
-  // Pulsante per andare alla dashboard
   if (dashboardButton) {
     dashboardButton.onclick = () => {
-      window.location.href = "#dashboard"; // Vai alla pagina della dashboard
+      window.location.href = "#dashboard";
     };
   }
 
@@ -83,28 +78,18 @@ export const createLogin = () => {
   };
 };
 
-
-
-
-
-
 function openRegisterModal() {
-  // Nascondi il modal di login
   const loginModal = document.getElementById("loginModal");
   loginModal.classList.add("hidden");
 
-  // Mostra il modal di registrazione
   const registerModal = document.getElementById("registerModal");
   registerModal.classList.remove("hidden");
 }
 
-// Funzione per chiudere il modal di registrazione e tornare al login
 function closeRegisterModal() {
-  // Nascondi il modal di registrazione
   const registerModal = document.getElementById("registerModal");
   registerModal.classList.add("hidden");
 
-  // Mostra il modal di login
   const loginModal = document.getElementById("loginModal");
   loginModal.classList.remove("hidden");
 }
@@ -144,16 +129,14 @@ function registraUtente() {
     });
 }
 
-// Aggiungi l'evento di clic al link di registrazione
 const registerLink = document.getElementById("register-link");
 if (registerLink) {
   registerLink.onclick = function(event) {
-    event.preventDefault(); // Prevenire il comportamento predefinito del link
-    openRegisterModal(); // Apri il modal di registrazione
+    event.preventDefault();
+    openRegisterModal();
   };
 }
 
-// Aggiungi la logica per chiudere il modal di registrazione
 const closeRegisterBtn = document.getElementById("closeRegister");
 if (closeRegisterBtn) {
   closeRegisterBtn.onclick = closeRegisterModal;
