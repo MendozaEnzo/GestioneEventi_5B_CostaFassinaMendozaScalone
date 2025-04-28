@@ -8,12 +8,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use("/", express.static(path.join(__dirname, "public")));
 
-// Creazione delle tabelle
+
 database.createTables();
 
 // ========== ROTTE POST (INSERT) ==========
 
-// Inserisci un nuovo utente
+
 app.post("/utente", async (req, res) => {
     try {
         await database.insertUtente(req.body);
@@ -23,7 +23,6 @@ app.post("/utente", async (req, res) => {
     }
 });
 
-// Inserisci un evento
 app.post("/evento", async (req, res) => {
     try {
         await database.insertEvento(req.body);
@@ -33,7 +32,7 @@ app.post("/evento", async (req, res) => {
     }
 });
 
-// Invia un invito
+
 app.post("/invito", async (req, res) => {
     const { evento_id, mittente_id, destinatario_id, stato, data } = req.body;
     try {
@@ -44,7 +43,7 @@ app.post("/invito", async (req, res) => {
     }
 });
 
-// Partecipa a un evento
+
 app.post("/partecipa", async (req, res) => {
     const { id_utente, id_evento } = req.body;
     try {
@@ -55,7 +54,7 @@ app.post("/partecipa", async (req, res) => {
     }
 });
 
-// Inserisci un post
+
 app.post("/post", async (req, res) => {
     try {
         await database.inserisciPost(req.body);
@@ -65,7 +64,7 @@ app.post("/post", async (req, res) => {
     }
 });
 
-// Inserisci contenuto
+
 app.post("/contenuto", async (req, res) => {
     try {
         await database.inserisciContenuto(req.body);
@@ -78,7 +77,7 @@ app.post("/contenuto", async (req, res) => {
 app.post("/login", async (req, res) => {
     const { nome, password } = req.body;
     try {
-        const utenti = await database.getUtenti(); // Ottieni tutti gli utenti
+        const utenti = await database.getUtenti(); 
         const utente = utenti.find(u => u.nome === nome && u.password === password);
         if (utente) {
             res.json(utente);
@@ -95,7 +94,7 @@ app.post("/login", async (req, res) => {
 
 // ========== ROTTE GET ==========
 
-// Ottieni tutti gli utenti
+
 app.get("/utenti", async (req, res) => {
     try {
         const utenti = await database.getUtenti();
@@ -105,7 +104,7 @@ app.get("/utenti", async (req, res) => {
     }
 });
 
-// Ottieni utente specifico
+
 app.get("/utente/:id", async (req, res) => {
     try {
         const utente = await database.getUtenteById(req.params.id);
@@ -115,7 +114,7 @@ app.get("/utente/:id", async (req, res) => {
     }
 });
 
-// Ottieni tutti gli eventi
+
 app.get("/eventi", async (req, res) => {
     try {
         const eventi = await database.getEventi();
@@ -125,7 +124,7 @@ app.get("/eventi", async (req, res) => {
     }
 });
 
-// Ottieni eventi di un creatore
+
 app.get("/eventi/creatore/:id", async (req, res) => {
     try {
         const eventi = await database.getEventiByCreatore(req.params.id);

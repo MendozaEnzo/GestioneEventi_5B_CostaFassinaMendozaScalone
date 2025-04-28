@@ -11,7 +11,7 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #2184ae; /* Navbar blu scuro */
+  background-color: #2184ae; 
   padding: 1rem;
   color: white;
   flex-wrap: wrap;
@@ -32,13 +32,13 @@ nav {
 .site-title {
   margin: 0;
   font-size: 1.6rem;
-  color: #ffcc00; /* Colore oro per il titolo */
+  color: #ffcc00; 
   font-family: 'Arial', sans-serif;
 }
 
 /* Link nella navbar */
 .nav-link {
-  color: #fff;  /* Colore bianco per tutti i link */
+  color: #fff;  
   text-decoration: none;
   font-weight: bold;
   padding: 8px 16px;
@@ -47,15 +47,15 @@ nav {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Link "Home" nella nav-left */
+
 .nav-left a.nav-link {
   font-size: 16px;
 }
 
-/* Effetto hover per tutti i link */
+
 .nav-link:hover {
-  background-color: #ffcc00;  /* Colore oro al passaggio del mouse */
-  color: #2b3e50; /* Cambia il colore del testo quando hover */
+  background-color: #ffcc00;  
+  color: #2b3e50; 
   text-decoration: underline;
 }
 
@@ -74,7 +74,7 @@ nav {
   background-color: #45a049;
 }
 
-/* Modal */
+
 .modal {
   position: fixed;
   z-index: 1000;
@@ -90,7 +90,7 @@ nav {
   transition: opacity 0.3s ease;
 }
 
-/* Contenuto della modale */
+
 .modal-content {
   background-color: #fff;
   padding: 30px;
@@ -113,14 +113,14 @@ nav {
   }
 }
 
-/* Bottone di chiusura della modale */
+
 .close-btn {
   float: right;
   font-size: 20px;
   cursor: pointer;
 }
 
-/* Utility per nascondere elementi */
+
 .hidden {
   display: none;
 }
@@ -185,7 +185,7 @@ button, a {
   background-color: #2b3e50;
 }
 
-/* Lista eventi */
+
 .eventi-list {
   display: flex;
   flex-direction: column;
@@ -194,7 +194,7 @@ button, a {
   margin-bottom: 50px;
 }
 
-/* Box evento singolo */
+
 .evento {
   background: #ffffff;
   border: 1px solid #ccc;

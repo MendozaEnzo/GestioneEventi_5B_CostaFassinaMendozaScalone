@@ -1,14 +1,12 @@
 const nodemailer = require('nodemailer');
-const conf = require('./conf.js');  // Importa conf.js
-
-// Configurazione per il trasportatore di email
+const conf = require('./conf.js');  r
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
-    user: conf.mailFrom,  // Usa il valore da conf.js
-    pass: conf.mailSecret, // Usa la password da conf.js
+    user: conf.mailFrom,  
+    pass: conf.mailSecret, 
   }
 });
 
@@ -24,7 +22,7 @@ const result = {
   send: async (email, subject, text) => {
     try {
       return await transporter.sendMail({
-        from: conf.from,  // Usa il valore da conf.js
+        from: conf.from,  
         to: email,
         subject: subject,
         text: text
