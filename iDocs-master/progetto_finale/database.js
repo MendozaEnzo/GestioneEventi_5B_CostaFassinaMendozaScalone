@@ -153,7 +153,8 @@ const database = {
 
 
     getEventiByCreatore: (creatore_id) => {
-        return executeQuery(`SELECT * FROM evento WHERE creatore_id = ?`, [creatore_id]);
+        return executeQuery(`SELECT * FROM evento 
+            WHERE creatore_id = ?`, [creatore_id]);
     },
 
     getInvitiByUtente: (utente_id) => {
