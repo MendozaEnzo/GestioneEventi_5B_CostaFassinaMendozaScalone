@@ -102,9 +102,8 @@ if (registerBtn) {
 function registraUtente() {
   const nome = document.getElementById("newUser").value;
   const email = document.getElementById("newEmail").value;
-  const password = document.getElementById("newPassword").value;
 
-  if (!nome || !email || !password) {
+  if (!nome || !email) {
     alert("Compila tutti i campi!");
     return;
   }
@@ -112,12 +111,12 @@ function registraUtente() {
   fetch("/utente", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome, email, password })
+    body: JSON.stringify({ nome, email })  // niente password
   })
     .then(res => res.json())
     .then(data => {
       if (data && data.result === "ok") {
-        alert("Registrazione completata!");
+        alert("Registrazione completata! Controlla la tua email per la password.");
         closeRegisterModal();
       } else {
         alert("Errore nella registrazione: " + (data.message || "Dati non validi."));
@@ -128,6 +127,7 @@ function registraUtente() {
       alert("Errore durante la registrazione");
     });
 }
+
 
 const registerLink = document.getElementById("register-link");
 if (registerLink) {

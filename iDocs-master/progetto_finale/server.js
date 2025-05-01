@@ -3,6 +3,10 @@ const http = require("http");
 const path = require("path");
 const bodyParser = require("body-parser");
 const database = require("./database");
+const mailer = require("./mailer");
+const crypto = require("crypto");
+
+
 
 const app = express();
 app.use(bodyParser.json());
@@ -15,13 +19,26 @@ database.createTables();
 
 
 app.post("/utente", async (req, res) => {
+    const { nome, email } = req.body;
+
+    if (!nome || !email) {
+        return res.status(400).json({ error: "Nome ed email obbligatori." });
+    }
+
+    const password = crypto.randomUUID().split('-')[0]; 
+
     try {
-        await database.insertUtente(req.body);
+        await mailer.send(email, "La tua password di accesso", `La tua password è: ${password}`);
+
+        await database.insertUtente({ nome, email, password });
+
         res.json({ result: "ok" });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        console.error("Errore nella registrazione:", e);
+        res.status(500).json({ error: "Registrazione fallita" });
     }
 });
+
 
 app.post("/evento", async (req, res) => {
     try {
@@ -183,6 +200,45 @@ app.get("/post-completo/:post_id", async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+app.get("/evento/:id", async (req, res) => {
+    try {
+    const eventoArray = await database.getEventoById(req.params.id);
+    const evento = eventoArray[0];
+    if (!evento) {
+    return res.status(404).json({ error: "Evento non trovato" });
+}
+
+  
+      const partecipanti = await database.getPartecipantiEvento(req.params.id);
+      const post = await database.getPostByEvento(req.params.id);
+  
+      // Per ogni post, carica i contenuti associati
+      const postConContenuti = await Promise.all(post.map(async (p) => {
+        const contenuti = await database.getContenutiByPost(p.id);
+        const immagine = contenuti.find(c => c.tipo === 'img')?.valore;
+        return {
+          autore: p.autore,
+          testo: p.testo,
+          timestamp: p.timestamp,
+          immagine: immagine || null
+        };
+      }));
+  
+      res.json({
+        id: evento.id,
+        titolo: evento.titolo,
+        data: evento.data,
+        creatore: evento.creatore,
+        partecipanti: partecipanti.map(p => p.nome),
+        commenti: postConContenuti
+      });
+  
+    } catch (e) {
+      console.error("Errore nel recupero evento:", e);
+      res.status(500).json({ error: "Errore nel recupero dell'evento" });
+    }
+  });
+  
 
 // Server HTTP
 const server = http.createServer(app);

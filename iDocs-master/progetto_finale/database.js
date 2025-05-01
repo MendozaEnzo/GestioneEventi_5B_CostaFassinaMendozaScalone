@@ -156,6 +156,21 @@ const database = {
         return executeQuery(`SELECT * FROM evento 
             WHERE creatore_id = ?`, [creatore_id]);
     },
+    getEventoById: (id) => {
+        return executeQuery(`
+            SELECT evento.*, utente.nome AS creatore
+            FROM evento
+            JOIN utente ON evento.creatore_id = utente.id
+            WHERE evento.id = ?`, [id]);
+    },
+    
+    getPartecipantiEvento: (evento_id) => {
+        return executeQuery(`
+            SELECT u.* FROM partecipa p
+            JOIN utente u ON p.id_utente = u.id
+            WHERE p.id_evento = ?`, [evento_id]);
+    },
+    
 
     getInvitiByUtente: (utente_id) => {
         return executeQuery(`

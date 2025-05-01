@@ -15,12 +15,34 @@ const hide = (elements) => {
     
     const render = () => {
        const url = new URL(document.location.href);
-       const pageName = url.hash.replace("#", "");
-       const selected = pages.filter((page) => page.id === pageName)[0] || pages[0];
- 
-       hide(pages);
-       show(selected);
-    }
+       const hash = url.hash.replace("#", "");
+
+      let selectedPageId = hash;
+      let dynamicId = null;
+
+      // Gestione hash tipo: dettaglio_42
+      if (hash.startsWith("dettaglio_")) {
+      selectedPageId = "dettaglio";
+      dynamicId = hash.split("_")[1];
+      }
+
+      const selected = pages.find((page) => page.id === selectedPageId) || pages[0];
+
+      hide(pages);
+      show(selected);
+
+      // Se è un dettaglio evento, caricalo dinamicamente
+      if (selectedPageId === "dettaglio" && dynamicId) {
+         import('./script.js').then(module => {
+            if (typeof module.caricaDettaglioEvento === 'function') {
+               module.caricaDettaglioEvento(dynamicId);
+            }
+         }).catch(err => {
+            console.error("Errore nel caricamento dettaglio evento:", err);
+         });
+      }
+
+         }
     window.addEventListener('popstate', render); 
     render();   
  }

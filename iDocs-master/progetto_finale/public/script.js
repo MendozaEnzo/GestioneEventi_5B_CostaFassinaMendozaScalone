@@ -1,5 +1,7 @@
 import { createLogin } from './login.js';
 import { createNavigator } from "./navigator.js";
+export { caricaDettaglioEvento };
+
 
 const loginLink = document.querySelector('.nav-right a[href="#login"]');
 const closeBtn = document.getElementById("closeLogin");
@@ -101,6 +103,9 @@ async function caricaEventiPubblici() {
     const eventi = await response.json();
     console.log(eventi);
 
+    // Ordinare gli eventi in base alla data in ordine crescente
+    eventi.sort((a, b) => new Date(a.data) - new Date(b.data));
+
     if (eventi.length === 0) {
       document.getElementById("eventiPubblici").innerHTML = "Non ci sono eventi pubblici.";
       return;
@@ -115,22 +120,31 @@ async function caricaEventiPubblici() {
       const creatore = evento.creatore || "Creatore sconosciuto";
 
       eventiHTML += `
-        <div class="evento"> 
-          <h3>${evento.titolo}</h3>
-          <p>${evento.descrizione}</p>
-          <p>Data: ${new Date(evento.data).toLocaleDateString()}</p>
-          <p>Creato da: ${creatore}</p>
-        </div>
-      `;
+      <div class="evento"> 
+        <h3>${evento.titolo}</h3>
+        <p>${evento.descrizione}</p>
+        <p>Data: ${new Date(evento.data).toLocaleDateString()}</p>
+        <p>Creato da: ${creatore}</p>
+        <button class="dettaglio-btn" data-id="${evento.id}">Vai al dettaglio</button>
+      </div>
+    `;
+
     });
 
     eventiContainer.innerHTML = eventiHTML;
+    document.querySelectorAll(".dettaglio-btn").forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-id");
+        location.hash = `#dettaglio_${id}`;
+      };
+    });
 
   } catch (error) {
     console.error("Errore nel recupero degli eventi pubblici:", error);
     document.getElementById("eventiPubblici").innerHTML = "Si è verificato un errore nel recupero degli eventi.";
   }
 }
+
 
 document.getElementById("dashboardBtn").onclick = function () {
   location.hash = "#dashboard";
@@ -165,6 +179,9 @@ async function caricaEventiPersonali() {
     const mieiEventi = eventi.filter(evento => evento.creatore_id === parseInt(userId));
     console.log("Miei eventi:", mieiEventi);
 
+    
+    mieiEventi.sort((a, b) => new Date(a.data) - new Date(b.data));
+
     if (mieiEventi.length === 0) {
       container.innerHTML = "Non hai creato eventi.";
     } else {
@@ -188,5 +205,45 @@ async function caricaEventiPersonali() {
     console.error("Errore nel caricamento dei tuoi eventi", err);
   }
 }
+
+async function caricaDettaglioEvento(id) {
+  try {
+    const response = await fetch(`/evento/${id}`);
+    if (!response.ok) {
+      throw new Error('Evento non trovato');
+    }
+
+    const evento = await response.json();
+
+    const container = document.getElementById("dettaglioEvento");
+    container.innerHTML = `
+      <h3>${evento.titolo}</h3>
+      <p><strong>Data:</strong> ${new Date(evento.data).toLocaleDateString()}</p>
+      <p><strong>Creato da:</strong> ${evento.creatore || "Sconosciuto"}</p>
+      <p><strong>Partecipanti:</strong> ${evento.partecipanti?.join(", ") || "Nessuno"}</p>
+      <h4>Commenti:</h4>
+      <div class="commenti-box">
+        ${evento.commenti?.map(c => `
+          <div class="commento">
+            <p><strong>${c.autore}</strong> (${new Date(c.timestamp).toLocaleString()})</p>
+            <p>${c.testo}</p>
+            ${c.immagine ? `<img src="${c.immagine}" style="max-width: 200px;">` : ""}
+          </div>
+        `).join("") || "<p>Nessun commento ancora.</p>"}
+      </div>
+    `;
+
+    mostraPagina("dettaglio");
+
+  } catch (err) {
+    document.getElementById("dettaglioEvento").innerHTML = "<p>Errore nel caricamento dell'evento.</p>";
+    console.error(err);
+  }
+}
+function mostraPagina(idPagina) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(idPagina).classList.remove("hidden");
+}
+
 
 caricaEventiPubblici();
