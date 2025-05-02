@@ -105,6 +105,46 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+app.post('/evento/:id/partecipanti', (req, res) => {
+    const eventoId = req.params.id;
+    const userId = req.body.userId;
+
+    database.partecipaEvento(userId, eventoId)
+        .then(() => {
+            res.json({ result: "ok" });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ result: "error", message: err });
+        });
+});
+app.post('/evento/:id/partecipa', async (req, res) => {
+    const eventoId = req.params.id;
+    const { username, partecipa } = req.body;
+
+    try {
+        const utenti = await database.getUtenti();
+        const utente = utenti.find(u => u.nome === username);
+
+        if (!utente) {
+            return res.status(404).json({ success: false, message: "Utente non trovato" });
+        }
+
+        if (partecipa) {
+            await database.partecipaEvento(utente.id, eventoId);
+        } else {
+            await database.rimuoviPartecipazione(utente.id, eventoId); // Assicurati che questa funzione esista
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Errore durante la partecipazione:", err);
+        res.status(500).json({ success: false, message: "Errore durante la partecipazione" });
+    }
+});
+
+
+  
 
 
 
@@ -169,6 +209,16 @@ app.get("/partecipazioni/:utente_id", async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
+});
+
+app.get('/evento/:id/partecipanti', (req, res) => {
+    const eventoId = req.params.id;
+    database.getNumeroPartecipantiEvento(eventoId)
+        .then(result => {
+            const numero = result[0]?.numero || 0;
+            res.json({ numero });
+        })
+        .catch(err => res.status(500).json({ error: err }));
 });
 
 // Ottieni post per evento

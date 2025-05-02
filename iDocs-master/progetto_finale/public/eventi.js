@@ -1,44 +1,57 @@
+import { createLogin } from './login.js';
+// Crea la logica di login
+const loginManager = createLogin();
+
+// Usa loginManager.isLogged() per verificare se l'utente è loggato
+if (loginManager.isLogged()) {
+  console.log("Utente loggato!");
+}
+
 // Funzione per caricare tutti gli eventi dal server e visualizzarli
+let eventoInModifica = null;
+document.getElementById("salvaModificaBtn").onclick = salvaModificaEvento;
 export function salvaModificaEvento() {
-    const titolo = document.getElementById("editEventTitle").value;
-    const data = document.getElementById("editEventDate").value;
-    const descrizione = document.getElementById("editEventDescription").value;
-  
-    fetch(`/evento/${eventoInModifica}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ titolo, descrizione, data })
-    }).then(r => r.json())
-      .then(data => {
-        if (data.result === "ok") {
-          alert("Evento modificato!");
-          chiudiModaleModifica();
-          caricaEventiPersonali(); // Assicurati siano definiti
-          caricaEventiPubblici();
-        }
-      })
-      .catch(err => console.error("Errore durante modifica:", err));
-  }
-  
-  function modificaEvento(eventoId) {
-    const nuovoTitolo = prompt("Nuovo titolo:");
-    const nuovaDescrizione = prompt("Nuova descrizione:");
-    const nuovaData = prompt("Nuova data:");
-  
-    fetch(`/evento/${eventoId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ titolo: nuovoTitolo, descrizione: nuovaDescrizione, data: nuovaData })
-    }).then(response => response.json())
-      .then(data => {
-        if (data.result === "ok") {
-          alert("Evento modificato!");
-          caricaEventiPersonali();
-          caricaEventiPubblici();
-        }
-      })
-      .catch(err => console.error("Errore durante la modifica dell'evento:", err));
-  }
+  const titolo = document.getElementById("editEventTitle").value;
+  const data = document.getElementById("editEventDate").value;
+  const descrizione = document.getElementById("editEventDescription").value;
+
+
+
+  fetch(`/evento/${eventoInModifica}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ titolo, descrizione, data })
+  }).then(r => r.json())
+    .then(data => {
+      if (data.result === "ok") {
+        alert("Evento modificato!");
+        chiudiModaleModifica();
+        caricaEventiPersonali();
+        caricaEventiPubblici();
+      }
+    })
+    .catch(err => console.error("Errore durante modifica:", err));
+}
+
+function modificaEvento(eventoId) {
+  fetch(`/evento/${eventoId}`)
+    .then(res => res.json())
+    .then(evento => {
+      eventoInModifica = evento.id;
+      document.getElementById("editEventTitle").value = evento.titolo;
+      if (evento.data) {
+        document.getElementById("editEventDate").value = evento.data.split("T")[0];
+      } else {
+        console.warn("Data evento mancante per evento ID:", evento.id);
+        document.getElementById("editEventDate").value = "";
+      }
+      
+      document.getElementById("editEventDescription").value = evento.descrizione;
+      document.getElementById("editEventModal").classList.remove("hidden");
+    })
+    .catch(err => console.error("Errore nel recupero evento da modificare:", err));
+}
+
   
   function eliminaEvento(eventoId) {
     if (confirm("Sei sicuro di voler eliminare questo evento?")) {
@@ -99,6 +112,7 @@ export function salvaModificaEvento() {
   // =====================
   async function caricaEventiPersonali() {
     const userId = sessionStorage.getItem("userId");
+    console.log("User ID:", userId);
   
     if (!userId) {
       console.log("Nessun utente loggato");
@@ -164,13 +178,18 @@ export function salvaModificaEvento() {
       if (!response.ok) throw new Error('Evento non trovato');
   
       const evento = await response.json();
+      const userName = sessionStorage.getItem("username");
       const container = document.getElementById("dettaglioEvento");
   
-      container.innerHTML = `
+      const partecipanti = evento.partecipanti?.map(p => String(p)) || [];
+      const isPartecipante = userName && partecipanti.includes(userName);
+  
+      let html = `
         <h3>${evento.titolo}</h3>
         <p><strong>Data:</strong> ${new Date(evento.data).toLocaleDateString()}</p>
         <p><strong>Creato da:</strong> ${evento.creatore || "Sconosciuto"}</p>
-        <p><strong>Partecipanti:</strong> ${evento.partecipanti?.join(", ") || "Nessuno"}</p>
+        <p><strong>Partecipanti:</strong> ${partecipanti.join(", ") || "Nessuno"}</p>
+  
         <h4>Commenti:</h4>
         <div class="commenti-box">
           ${evento.commenti?.map(c => `
@@ -183,6 +202,41 @@ export function salvaModificaEvento() {
         </div>
       `;
   
+      if (userName) {
+        html += `
+          <div class="partecipazione">
+            <button id="partecipaBtn" class="btn" style="display: ${isPartecipante ? "none" : "inline-block"}">Partecipa</button>
+            <button id="nonPartecipaBtn" class="btn" style="display: ${isPartecipante ? "inline-block" : "none"}">Annulla partecipazione</button>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="partecipazione">
+            <p>Per partecipare all'evento, <a href="#login">effettua il login</a></p>
+          </div>
+        `;
+      }
+  
+      container.innerHTML = html;
+  
+      // Associazione eventi con proprietà onclick
+      if (userName) {
+        const partecipaBtn = document.getElementById("partecipaBtn");
+        const nonPartecipaBtn = document.getElementById("nonPartecipaBtn");
+  
+        if (partecipaBtn) {
+          partecipaBtn.onclick = function () {
+            partecipazioneEvento(id, userName, true);
+          };
+        }
+  
+        if (nonPartecipaBtn) {
+          nonPartecipaBtn.onclick = function () {
+            partecipazioneEvento(id, userName, false);
+          };
+        }
+      }
+  
       mostraPagina("dettaglio");
   
     } catch (err) {
@@ -190,6 +244,34 @@ export function salvaModificaEvento() {
       document.getElementById("dettaglioEvento").innerHTML = "<p>Errore nel caricamento dell'evento.</p>";
     }
   }
+  
+  
+
+  
+  
+  // Funzione per aggiungere o rimuovere un partecipante
+  async function partecipazioneEvento(eventoId, username, partecipa) {
+    try {
+      const response = await fetch(`/evento/${eventoId}/partecipa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, partecipa })
+      });
+  
+      const result = await response.json();
+      if (!result.success) throw new Error(result.message);
+  
+      await caricaDettaglioEvento(eventoId); // Aggiorna la UI
+    } catch (err) {
+      console.error("Errore nella gestione della partecipazione:", err);
+      alert("Errore nella gestione della partecipazione.");
+    }
+  }
+  
+  
+  
+  
+  
   
   // =====================
   // Funzione: creaEvento
@@ -231,6 +313,9 @@ export function salvaModificaEvento() {
   function chiudiModaleEvento() {
     document.getElementById("addEventModal").classList.add("hidden");
   }
+  function chiudiModaleModifica() {
+    document.getElementById("editEventModal").classList.add("hidden");
+  }
   export {
     caricaEventiPubblici,
     caricaEventiPersonali,
@@ -238,3 +323,8 @@ export function salvaModificaEvento() {
     creaEvento
   };
   
+
+
+
+
+

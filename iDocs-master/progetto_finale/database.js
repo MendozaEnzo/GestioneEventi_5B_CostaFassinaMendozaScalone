@@ -194,6 +194,12 @@ const database = {
         return executeQuery(`
             SELECT * FROM contenuto WHERE id_post = ?`, [post_id]);
     },
+    getNumeroPartecipantiEvento: (evento_id) => {
+        return executeQuery(`
+            SELECT COUNT(*) AS numero FROM partecipa
+            WHERE id_evento = ?`, [evento_id]);
+    },
+    
 
     getPostConContenuti: (post_id) => {
         return executeQuery(`
@@ -213,7 +219,14 @@ const database = {
         return executeQuery(`
             DELETE FROM evento WHERE id = ?
         `, [id]);
+    },
+    rimuoviPartecipazione: (idUtente, idEvento) => {
+        return executeQuery(`
+            DELETE FROM partecipa
+            WHERE id_utente = ? AND id_evento = ?
+        `, [idUtente, idEvento]);
     }
+    
         
 };
 

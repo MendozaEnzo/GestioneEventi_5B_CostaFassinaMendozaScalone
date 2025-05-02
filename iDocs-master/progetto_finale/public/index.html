@@ -102,16 +102,18 @@
       </div>
     </div>
     <!-- Modal per modifica evento -->
-  <div id="editEventModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close-btn" onclick="chiudiModaleModifica()">&times;</span>
-      <h2>Modifica Evento</h2>
-      <input type="text" id="editEventTitle" placeholder="Titolo evento" required />
-      <input type="date" id="editEventDate" required />
-      <textarea id="editEventDescription" placeholder="Descrizione evento" rows="4" required></textarea>
-      <button id="salvaModificaEvento">Salva Modifiche</button>
-    </div>
+  <!-- Modale per modifica evento -->
+<div id="editEventModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-btn" id="closeEditEvent">&times;</span>
+    <h2>Modifica Evento</h2>
+    <input type="text" id="editEventTitle" placeholder="Titolo evento" />
+    <input type="date" id="editEventDate" />
+    <textarea id="editEventDescription" placeholder="Descrizione evento" rows="4"></textarea>
+    <button id="salvaModificaBtn">Salva Modifiche</button>
   </div>
+</div>
+
 
 
   </main>

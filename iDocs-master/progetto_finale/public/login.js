@@ -27,6 +27,8 @@ export const createLogin = () => {
       .then(utente => {
         sessionStorage.setItem("username", utente.nome);
         sessionStorage.setItem("userId", utente.id);
+        console.log("UserName memorizzato:", sessionStorage.getItem("username"));
+        console.log("UserId memorizzato:", sessionStorage.getItem("userId"));
         isLogged = true;
 
         loginModal.classList.add("hidden");

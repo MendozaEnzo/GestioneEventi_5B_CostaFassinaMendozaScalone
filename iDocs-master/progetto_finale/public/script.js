@@ -5,7 +5,8 @@ import {
   caricaEventiPubblici,
   caricaEventiPersonali,
   caricaDettaglioEvento,
-  creaEvento} from "./eventi.js";
+  creaEvento,
+  salvaModificaEvento} from "./eventi.js";
 
 const loginLink = document.querySelector('.nav-right a[href="#login"]');
 const closeBtn = document.getElementById("closeLogin");
@@ -49,6 +50,9 @@ document.getElementById("creaEventoBtn").onclick = function () {
 function apriModaleEvento() {
   document.getElementById("addEventModal").classList.remove("hidden");
 }
+function chiudiModaleEvento() {
+  document.getElementById("addEventModal").classList.add("hidden");
+}
 
 
 
@@ -74,10 +78,6 @@ export function apriModaleModifica(evento) {
   document.getElementById("editEventModal").classList.remove("hidden");
 }
 
-export function chiudiModaleModifica() {
-  document.getElementById("editEventModal").classList.add("hidden");
-  eventoInModifica = null;
-}
 
 
 
