@@ -201,7 +201,20 @@ const database = {
             FROM post p
             LEFT JOIN contenuto c ON p.id = c.id_post
             WHERE p.id = ?`, [post_id]);
+    },
+    updateEvento: (id, { titolo, descrizione, data }) => {
+        return executeQuery(`
+            UPDATE evento
+            SET titolo = ?, descrizione = ?, data = ?
+            WHERE id = ?
+        `, [titolo, descrizione, data, id]);
+    },
+    deleteEvento: (id) => {
+        return executeQuery(`
+            DELETE FROM evento WHERE id = ?
+        `, [id]);
     }
+        
 };
 
 module.exports = database;

@@ -1,7 +1,11 @@
 import { createLogin } from './login.js';
 import { createNavigator } from "./navigator.js";
 export { caricaDettaglioEvento };
-
+import {
+  caricaEventiPubblici,
+  caricaEventiPersonali,
+  caricaDettaglioEvento,
+  creaEvento} from "./eventi.js";
 
 const loginLink = document.querySelector('.nav-right a[href="#login"]');
 const closeBtn = document.getElementById("closeLogin");
@@ -46,104 +50,11 @@ function apriModaleEvento() {
   document.getElementById("addEventModal").classList.remove("hidden");
 }
 
-function chiudiModaleEvento() {
-  document.getElementById("addEventModal").classList.add("hidden");
-}
 
-async function creaEvento() {
-  const titolo = document.getElementById("eventTitle").value;
-  const data = document.getElementById("eventDate").value;
-  const descrizione = document.getElementById("eventDescription").value;
-  const userId = sessionStorage.getItem("userId");
 
-  if (!userId) {
-    alert("Devi essere loggato per creare un evento.");
-    return;
-  }
 
-  if (!titolo || !data || !descrizione) {
-    alert("Compila tutti i campi.");
-    return;
-  }
 
-  try {
-    await fetch("/evento", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        titolo,
-        data,
-        descrizione,
-        creatore_id: userId
-      })
-    });
 
-    chiudiModaleEvento();
-    document.getElementById("eventTitle").value = "";
-    document.getElementById("eventDate").value = "";
-    document.getElementById("eventDescription").value = "";
-    await caricaEventiPubblici();
-    if (typeof caricaEventiPersonali === "function") {
-      caricaEventiPersonali();
-    }
-
-  } catch (error) {
-    console.error("Errore nella creazione dell'evento:", error);
-    alert("Si è verificato un errore nella creazione dell'evento. Riprova più tardi.");
-  }
-}
-
-async function caricaEventiPubblici() {
-  try {
-    const response = await fetch('/eventi');
-    if (!response.ok) {
-      throw new Error('Impossibile recuperare gli eventi');
-    }
-
-    const eventi = await response.json();
-    console.log(eventi);
-
-    // Ordinare gli eventi in base alla data in ordine crescente
-    eventi.sort((a, b) => new Date(a.data) - new Date(b.data));
-
-    if (eventi.length === 0) {
-      document.getElementById("eventiPubblici").innerHTML = "Non ci sono eventi pubblici.";
-      return;
-    }
-
-    const eventiContainer = document.getElementById("eventiPubblici");
-    eventiContainer.innerHTML = "";
-
-    let eventiHTML = '';
-
-    eventi.forEach(evento => {
-      const creatore = evento.creatore || "Creatore sconosciuto";
-
-      eventiHTML += `
-      <div class="evento"> 
-        <h3>${evento.titolo}</h3>
-        <p>${evento.descrizione}</p>
-        <p>Data: ${new Date(evento.data).toLocaleDateString()}</p>
-        <p>Creato da: ${creatore}</p>
-        <button class="dettaglio-btn" data-id="${evento.id}">Vai al dettaglio</button>
-      </div>
-    `;
-
-    });
-
-    eventiContainer.innerHTML = eventiHTML;
-    document.querySelectorAll(".dettaglio-btn").forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute("data-id");
-        location.hash = `#dettaglio_${id}`;
-      };
-    });
-
-  } catch (error) {
-    console.error("Errore nel recupero degli eventi pubblici:", error);
-    document.getElementById("eventiPubblici").innerHTML = "Si è verificato un errore nel recupero degli eventi.";
-  }
-}
 
 
 document.getElementById("dashboardBtn").onclick = function () {
@@ -151,99 +62,26 @@ document.getElementById("dashboardBtn").onclick = function () {
   caricaEventiPersonali();
 };
 
-async function caricaEventiPersonali() {
-  const userId = sessionStorage.getItem("userId");
+let eventoInModifica = null;
 
-  if (!userId) {
-    console.log("Nessun utente loggato");
-    return;
-  }
+export function apriModaleModifica(evento) {
+  eventoInModifica = evento.id;
 
-  try {
-    const response = await fetch("/eventi");
-    if (!response.ok) {
-      throw new Error('Impossibile recuperare gli eventi');
-    }
+  document.getElementById("editEventTitle").value = evento.titolo;
+  document.getElementById("editEventDate").value = evento.data;
+  document.getElementById("editEventDescription").value = evento.descrizione;
 
-    const eventi = await response.json();
-    console.log("Eventi caricati:", eventi);
-
-    const container = document.getElementById("my-events");
-    if (!container) {
-      console.error("Contenitore degli eventi non trovato!");
-      return;
-    }
-
-    container.innerHTML = "";
-
-    const mieiEventi = eventi.filter(evento => evento.creatore_id === parseInt(userId));
-    console.log("Miei eventi:", mieiEventi);
-
-    
-    mieiEventi.sort((a, b) => new Date(a.data) - new Date(b.data));
-
-    if (mieiEventi.length === 0) {
-      container.innerHTML = "Non hai creato eventi.";
-    } else {
-      let eventiHTML = "";
-
-      mieiEventi.forEach(evento => {
-        eventiHTML += `
-          <div class="evento-personale">
-            <div class="info">
-              <h4>${evento.titolo}</h4>
-              <p>${new Date(evento.data).toLocaleDateString()}</p>
-            </div>
-            <button class="manage-btn">Manage</button>
-          </div>
-        `;
-      });
-
-      container.innerHTML = eventiHTML;
-    }
-  } catch (err) {
-    console.error("Errore nel caricamento dei tuoi eventi", err);
-  }
+  document.getElementById("editEventModal").classList.remove("hidden");
 }
 
-async function caricaDettaglioEvento(id) {
-  try {
-    const response = await fetch(`/evento/${id}`);
-    if (!response.ok) {
-      throw new Error('Evento non trovato');
-    }
-
-    const evento = await response.json();
-
-    const container = document.getElementById("dettaglioEvento");
-    container.innerHTML = `
-      <h3>${evento.titolo}</h3>
-      <p><strong>Data:</strong> ${new Date(evento.data).toLocaleDateString()}</p>
-      <p><strong>Creato da:</strong> ${evento.creatore || "Sconosciuto"}</p>
-      <p><strong>Partecipanti:</strong> ${evento.partecipanti?.join(", ") || "Nessuno"}</p>
-      <h4>Commenti:</h4>
-      <div class="commenti-box">
-        ${evento.commenti?.map(c => `
-          <div class="commento">
-            <p><strong>${c.autore}</strong> (${new Date(c.timestamp).toLocaleString()})</p>
-            <p>${c.testo}</p>
-            ${c.immagine ? `<img src="${c.immagine}" style="max-width: 200px;">` : ""}
-          </div>
-        `).join("") || "<p>Nessun commento ancora.</p>"}
-      </div>
-    `;
-
-    mostraPagina("dettaglio");
-
-  } catch (err) {
-    document.getElementById("dettaglioEvento").innerHTML = "<p>Errore nel caricamento dell'evento.</p>";
-    console.error(err);
-  }
+export function chiudiModaleModifica() {
+  document.getElementById("editEventModal").classList.add("hidden");
+  eventoInModifica = null;
 }
-function mostraPagina(idPagina) {
-  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-  document.getElementById(idPagina).classList.remove("hidden");
-}
+
+
+
+
 
 
 caricaEventiPubblici();

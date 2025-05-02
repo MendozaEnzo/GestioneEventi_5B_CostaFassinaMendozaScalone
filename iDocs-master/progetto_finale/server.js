@@ -240,6 +240,27 @@ app.get("/evento/:id", async (req, res) => {
   });
   
 
+//modifica 
+app.put("/evento/:id", async (req, res) => {
+    try {
+        await database.updateEvento(req.params.id, req.body);
+        res.json({ result: "ok" });
+    } catch (e) {
+        console.error("Errore nella modifica evento:", e);
+        res.status(500).json({ error: "Modifica fallita" });
+    }
+});
+//elimina
+app.delete("/evento/:id", async (req, res) => {
+    try {
+        await database.deleteEvento(req.params.id);
+        res.json({ result: "ok" });
+    } catch (e) {
+        console.error("Errore nella cancellazione evento:", e);
+        res.status(500).json({ error: "Eliminazione fallita" });
+    }
+});
+
 // Server HTTP
 const server = http.createServer(app);
 const port = 5600;

@@ -101,12 +101,24 @@
         <button id="registerBtn">Registrati</button>
       </div>
     </div>
+    <!-- Modal per modifica evento -->
+  <div id="editEventModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="chiudiModaleModifica()">&times;</span>
+      <h2>Modifica Evento</h2>
+      <input type="text" id="editEventTitle" placeholder="Titolo evento" required />
+      <input type="date" id="editEventDate" required />
+      <textarea id="editEventDescription" placeholder="Descrizione evento" rows="4" required></textarea>
+      <button id="salvaModificaEvento">Salva Modifiche</button>
+    </div>
+  </div>
+
 
   </main>
 
   <script type="module" src="navigator.js"></script>
   <script type="module" src="script.js"></script>
   <script type="module" src="login.js"></script>
-  <script type="module" src="mailer.js"></script>
+  <script type="module" src="eventi.js"></script>
 </body>
 </html>
