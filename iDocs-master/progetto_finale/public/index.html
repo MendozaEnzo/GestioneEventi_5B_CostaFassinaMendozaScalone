@@ -54,6 +54,7 @@
           <div class="add-event-wrapper">
             <button id="add-event-btn" class="add-event-btn">+ aggiungi evento</button>
           </div>
+          
         
           <h3>I miei eventi:</h3>
           <div id="my-events" class="eventi-personali-list">
@@ -114,6 +115,44 @@
   </div>
 </div>
 
+<!-- Modale per aggiungere un post -->
+<div id="aggiungiPostModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Aggiungi Post</h2>
+    
+    <!-- Sezione per tipo e data -->
+    <div id="postInfoSection">
+      <label for="postTipo">Tipo del Post:</label>
+      <input type="text" id="postTipo" placeholder="Es. Notizia, Commento, Annuncio" required>
+      <br><br>
+
+      <label for="postData">Data del Post (YYYY-MM-DD):</label>
+      <input type="text" id="postData" placeholder="Es. 2025-05-04" required>
+      <br><br>
+
+      <button id="nextStepBtn">Avanti</button>
+    </div>
+
+    <!-- Sezione per il contenuto del post -->
+    <div id="postContentSection" class="hidden">
+      <label for="contentTitle">Titolo del Post:</label>
+      <input type="text" id="contentTitle" required>
+      <br><br>
+
+      <label for="postContent">URL del Contenuto:</label>
+      <input type="text" id="postContent" required>
+      <br><br>
+
+      <button id="savePostContentBtn">Salva Post</button>
+    </div>
+
+    <button id="closeModalBtn">Chiudi</button>
+  </div>
+</div>
+
+
+
+
 
 
   </main>
@@ -121,6 +160,7 @@
   <script type="module" src="navigator.js"></script>
   <script type="module" src="script.js"></script>
   <script type="module" src="login.js"></script>
+  <script type="module" src="post.js"></script>
   <script type="module" src="eventi.js"></script>
 </body>
 </html>

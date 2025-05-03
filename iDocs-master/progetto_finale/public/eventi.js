@@ -1,4 +1,6 @@
 import { createLogin } from './login.js';
+import { caricaPostEvento,aggiungiPost } from './post.js';
+
 // Crea la logica di login
 const loginManager = createLogin();
 
@@ -172,78 +174,100 @@ function modificaEvento(eventoId) {
   // =====================
   // Funzione: caricaDettaglioEvento
   // =====================
-  async function caricaDettaglioEvento(id) {
-    try {
-      const response = await fetch(`/evento/${id}`);
-      if (!response.ok) throw new Error('Evento non trovato');
-  
-      const evento = await response.json();
-      const userName = sessionStorage.getItem("username");
-      const container = document.getElementById("dettaglioEvento");
-  
-      const partecipanti = evento.partecipanti?.map(p => String(p)) || [];
-      const isPartecipante = userName && partecipanti.includes(userName);
-  
-      let html = `
-        <h3>${evento.titolo}</h3>
-        <p><strong>Data:</strong> ${new Date(evento.data).toLocaleDateString()}</p>
-        <p><strong>Creato da:</strong> ${evento.creatore || "Sconosciuto"}</p>
-        <p><strong>Partecipanti:</strong> ${partecipanti.join(", ") || "Nessuno"}</p>
-  
-        <h4>Commenti:</h4>
-        <div class="commenti-box">
-          ${evento.commenti?.map(c => `
-            <div class="commento">
-              <p><strong>${c.autore}</strong> (${new Date(c.timestamp).toLocaleString()})</p>
-              <p>${c.testo}</p>
-              ${c.immagine ? `<img src="${c.immagine}" style="max-width: 200px;">` : ""}
-            </div>
-          `).join("") || "<p>Nessun commento ancora.</p>"}
-        </div>
-      `;
-  
-      if (userName) {
-        html += `
-          <div class="partecipazione">
-            <button id="partecipaBtn" class="btn" style="display: ${isPartecipante ? "none" : "inline-block"}">Partecipa</button>
-            <button id="nonPartecipaBtn" class="btn" style="display: ${isPartecipante ? "inline-block" : "none"}">Annulla partecipazione</button>
-          </div>
-        `;
-      } else {
-        html += `
-          <div class="partecipazione">
-            <p>Per partecipare all'evento, <a href="#login">effettua il login</a></p>
-          </div>
-        `;
+async function caricaDettaglioEvento(id) {
+  try {
+    const res = await fetch(`/evento/${id}`);
+    if (!res.ok) throw new Error('Evento non trovato');
+
+    const evento = await res.json();
+    const userName = sessionStorage.getItem("username");
+    const container = document.getElementById("dettaglioEvento");
+
+    const partecipanti = evento.partecipanti?.map(p => String(p)) || [];
+    const isPartecipante = userName && partecipanti.includes(userName);
+
+    // BOTTONI PARTECIPAZIONE IN ALTO
+    let html = `<div class="partecipazione-top">
+      ${userName ? `
+        <button id="partecipaBtn" class="btn" style="display: ${isPartecipante ? 'none' : 'inline-block'}">Partecipa</button>
+        <button id="nonPartecipaBtn" class="btn" style="display: ${isPartecipante ? 'inline-block' : 'none'}">Annulla partecipazione</button>
+      ` : `<p>Per partecipare, <a href="#login">effettua il login</a></p>`}
+    </div>`;
+
+    // TITOLO E INFORMAZIONI
+    html += `
+      <h3>${evento.titolo}</h3>
+      <p><strong>Data:</strong> ${new Date(evento.data).toLocaleDateString()}</p>
+      <p><strong>Creato da:</strong> ${evento.creatore || 'Sconosciuto'}</p>
+      <p><strong>Partecipanti:</strong> ${partecipanti.join(', ') || 'Nessuno'}</p>
+    `;
+
+    // SEZIONE POST (ex commenti)
+    html += `
+      <div class="post-section">
+        <h4>Post:</h4>
+        <button id="aggiungiPostBtn" style="display: ${isPartecipante ? 'inline-block' : 'none'}">Aggiungi Post</button>
+        <div id="postList">Caricamento post…</div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+
+      // Bind partecipazione
+    if (userName) {
+      const partecipaBtn = document.getElementById('partecipaBtn');
+      if (partecipaBtn) {
+        partecipaBtn.onclick = () => partecipazioneEvento(id, userName, true);
+      }      
+      const nonPartecipaBtn = document.getElementById('nonPartecipaBtn');
+      if (nonPartecipaBtn) {
+        nonPartecipaBtn.onclick = () => partecipazioneEvento(id, userName, false);
       }
-  
-      container.innerHTML = html;
-  
-      // Associazione eventi con proprietà onclick
-      if (userName) {
-        const partecipaBtn = document.getElementById("partecipaBtn");
-        const nonPartecipaBtn = document.getElementById("nonPartecipaBtn");
-  
-        if (partecipaBtn) {
-          partecipaBtn.onclick = function () {
-            partecipazioneEvento(id, userName, true);
-          };
-        }
-  
-        if (nonPartecipaBtn) {
-          nonPartecipaBtn.onclick = function () {
-            partecipazioneEvento(id, userName, false);
-          };
-        }
-      }
-  
-      mostraPagina("dettaglio");
-  
-    } catch (err) {
-      console.error(err);
-      document.getElementById("dettaglioEvento").innerHTML = "<p>Errore nel caricamento dell'evento.</p>";
+
     }
+
+    // Bind apertura modali per i post
+    const newPostMetaBtn = document.getElementById('newPostMetaBtn');
+    if (newPostMetaBtn) {
+      newPostMetaBtn.onclick = () => document.getElementById('postMetaModal').classList.remove('hidden');
+    }
+
+    const newPostContentBtn = document.getElementById('newPostContentBtn');
+    if (newPostContentBtn) {
+      newPostContentBtn.onclick = () => document.getElementById('postContentModal').classList.remove('hidden');
+    }
+
+    // Bind salvataggio della modale metadata (tipo + data)
+    const saveMetaBtn = document.getElementById('saveMetaBtn');
+    if (saveMetaBtn) {
+      saveMetaBtn.onclick = () => inserisciMetaPost(id);
+    }
+
+    // Bind salvataggio della modale contenuto
+    const saveContentBtn = document.getElementById('saveContentBtn');
+    if (saveContentBtn) {
+      saveContentBtn.onclick = () => {
+        const postId = document.getElementById('postSelect').value;
+        inserisciContenutoPost(postId);
+      };
+    }
+
+    // Bind aggiunta testo semplice
+    const aggiungiPostBtn = document.getElementById('aggiungiPostBtn');
+    if (aggiungiPostBtn) {
+      aggiungiPostBtn.onclick = () => aggiungiPost(id);
+    }
+
+
+    // Carica i post e mostra la pagina
+    await caricaPostEvento(id);
+    mostraPagina('dettaglio');
   }
+
+  catch (err) {
+    console.error(err);
+  }
+}
   
   
 

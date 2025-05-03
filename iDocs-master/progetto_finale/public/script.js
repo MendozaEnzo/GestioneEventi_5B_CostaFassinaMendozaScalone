@@ -78,6 +78,24 @@ export function apriModaleModifica(evento) {
   document.getElementById("editEventModal").classList.remove("hidden");
 }
 
+// Questo codice si troverà alla fine del file, dopo che il DOM è stato caricato
+const aggiungiPostBtn = document.getElementById('aggiungiPostBtn');
+if (aggiungiPostBtn) {
+  aggiungiPostBtn.onclick = () => {
+    document.getElementById('aggiungiPostModal').classList.remove('hidden');
+  };
+} else {
+  console.log("Elemento 'aggiungiPostBtn' non trovato!");
+}
+
+// Gestione chiusura della modale
+const closeAddPost = document.getElementById('closeAddPost');
+if (closeAddPost) {
+  closeAddPost.onclick = () => {
+    document.getElementById('aggiungiPostModal').classList.add('hidden');
+  };
+}
+
 
 
 
