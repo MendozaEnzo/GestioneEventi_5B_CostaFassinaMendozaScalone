@@ -1,19 +1,35 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
+const fs = require('fs');
 const bodyParser = require("body-parser");
 const database = require("./database");
 const mailer = require("./mailer");
 const crypto = require("crypto");
+const multer = require('multer');
 
-
+const storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, path.join(__dirname, 'files'));
+    },
+    filename: function (req, file, callback) {
+        callback(null, file.originalname)
+    }
+});
+const upload = multer({ storage: storage }).single('file');
 
 const app = express();
 app.use(bodyParser.json());
 app.use("/", express.static(path.join(__dirname, "public")));
+app.use("/files", express.static(path.join(__dirname, 'files')));
 
 
 database.createTables();
+
+app.post("/upload", upload, async (req, res) => {
+    await database.insert("./files/" + req.file.originalname);
+    res.json({ result: "ok" });
+});
 
 // ========== ROTTE POST (INSERT) ==========
 
@@ -74,22 +90,53 @@ app.post("/partecipa", async (req, res) => {
 
 app.post("/post", async (req, res) => {
     try {
-        await database.inserisciPost(req.body);
-        res.json({ result: "ok" });
+      const id_post = await database.inserisciPost(req.body); 
+      res.json({ result: "ok", id_post });  
+      console.log("Post inserito con id:", id_post);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+      res.status(500).json({ error: e.message });
     }
-});
+  });
+  
+  
 
 
-app.post("/contenuto", async (req, res) => {
+app.post("/contenuto", upload, async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "Nessun file caricato" });
+    }
+  
+    const { tipo, id_post } = req.body;
+    const idPostInt = parseInt(id_post, 10);
+    if (isNaN(idPostInt)) {
+        return res.status(400).json({ error: "ID del post non valido" });
+    }
+    if (!tipo || !id_post) {
+      return res.status(400).json({ error: "Tipo e ID del post sono obbligatori" });
+    }
+  
+    
+    const fileUrl = "/files/" + req.file.originalname;
+  
     try {
-        await database.inserisciContenuto(req.body);
-        res.json({ result: "ok" });
+      
+      await database.inserisciContenuto({
+        tipo,
+        url: fileUrl,
+        id_post: parseInt(id_post),
+      });
+  
+      res.json({ result: "ok", id_post: id_post });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+      console.error("Errore durante l'inserimento del contenuto:", e);
+      res.status(500).json({ error: "Errore durante l'inserimento del contenuto" });
     }
-});
+  });
+  
+  
+
+
+
 
 app.post("/login", async (req, res) => {
     const { nome, password } = req.body;
@@ -133,7 +180,7 @@ app.post('/evento/:id/partecipa', async (req, res) => {
         if (partecipa) {
             await database.partecipaEvento(utente.id, eventoId);
         } else {
-            await database.rimuoviPartecipazione(utente.id, eventoId); // Assicurati che questa funzione esista
+            await database.rimuoviPartecipazione(utente.id, eventoId); 
         }
 
         res.json({ success: true });
@@ -142,6 +189,16 @@ app.post('/evento/:id/partecipa', async (req, res) => {
         res.status(500).json({ success: false, message: "Errore durante la partecipazione" });
     }
 });
+app.post("/invito", async (req, res) => {
+    const { evento_id, mittente_id, destinatario_id, stato, data } = req.body;
+    try {
+        await database.invitaUtente(evento_id, mittente_id, destinatario_id, stato, data);
+        res.json({ result: "ok" });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 
   
@@ -191,7 +248,7 @@ app.get("/eventi/creatore/:id", async (req, res) => {
     }
 });
 
-// Ottieni inviti ricevuti da un utente
+
 app.get("/inviti/:utente_id", async (req, res) => {
     try {
         const inviti = await database.getInvitiByUtente(req.params.utente_id);
@@ -201,7 +258,7 @@ app.get("/inviti/:utente_id", async (req, res) => {
     }
 });
 
-// Ottieni eventi a cui partecipa un utente
+
 app.get("/partecipazioni/:utente_id", async (req, res) => {
     try {
         const partecipazioni = await database.getPartecipazioniByUtente(req.params.utente_id);
@@ -221,7 +278,7 @@ app.get('/evento/:id/partecipanti', (req, res) => {
         .catch(err => res.status(500).json({ error: err }));
 });
 
-// Ottieni post per evento
+
 app.get("/post/evento/:evento_id", async (req, res) => {
     try {
         const post = await database.getPostByEvento(req.params.evento_id);
@@ -231,7 +288,7 @@ app.get("/post/evento/:evento_id", async (req, res) => {
     }
 });
 
-// Ottieni contenuti per post
+
 app.get("/contenuti/post/:post_id", async (req, res) => {
     try {
         const contenuti = await database.getContenutiByPost(req.params.post_id);
@@ -241,7 +298,7 @@ app.get("/contenuti/post/:post_id", async (req, res) => {
     }
 });
 
-// Ottieni post con contenuti
+
 app.get("/post-completo/:post_id", async (req, res) => {
     try {
         const post = await database.getPostConContenuti(req.params.post_id);
@@ -250,6 +307,19 @@ app.get("/post-completo/:post_id", async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+app.get('/post/utente/:id', async (req, res) => {
+    try {
+      const posts = await database.getPostByAutore(parseInt(req.params.id));
+      res.json(posts);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Errore nel recupero dei post utente' });
+    }
+  });
+  
+
+  
 app.get("/evento/:id", async (req, res) => {
     try {
     const eventoArray = await database.getEventoById(req.params.id);
@@ -288,6 +358,20 @@ app.get("/evento/:id", async (req, res) => {
       res.status(500).json({ error: "Errore nel recupero dell'evento" });
     }
   });
+// Recupera un singolo post con i contenuti
+app.get("/post/:id", async (req, res) => {
+    try {
+        const post = await database.getPostConContenuti(req.params.id);
+        if (!post) {
+            return res.status(404).json({ error: "Post non trovato" });
+        }
+        res.json(post);
+    } catch (e) {
+        console.error("Errore nel recupero del post:", e);
+        res.status(500).json({ error: "Errore nel recupero del post" });
+    }
+});
+
   
 
 //modifica 
@@ -300,6 +384,22 @@ app.put("/evento/:id", async (req, res) => {
         res.status(500).json({ error: "Modifica fallita" });
     }
 });
+app.put('/post/:id', async (req, res) => {
+    const postId = parseInt(req.params.id); 
+    const { tipo, evento_id, data_post, contenuti } = req.body; 
+
+    if (!postId || !tipo || !evento_id || !data_post) {
+        return res.status(400).json({ error: 'Dati insufficienti per aggiornare il post.' });
+    }
+
+    try {
+        await database.updatePost(postId, { tipo, evento_id, data_post, contenuti });
+        res.status(200).json({ message: 'Post e contenuti aggiornati con successo!' });
+    } catch (error) {
+        console.error('Errore durante l\'aggiornamento del post:', error);
+        res.status(500).json({ error: 'Errore durante l\'aggiornamento del post.' });
+    }
+});
 //elimina
 app.delete("/evento/:id", async (req, res) => {
     try {
@@ -310,6 +410,15 @@ app.delete("/evento/:id", async (req, res) => {
         res.status(500).json({ error: "Eliminazione fallita" });
     }
 });
+app.delete("/post/:id", async (req, res) => {
+    try {
+      await database.deletePost(req.params.id);
+      res.json({ result: "ok" });
+    } catch (e) {
+      res.status(500).json({ error: "Errore nella cancellazione del post" });
+    }
+  });
+  
 
 // Server HTTP
 const server = http.createServer(app);

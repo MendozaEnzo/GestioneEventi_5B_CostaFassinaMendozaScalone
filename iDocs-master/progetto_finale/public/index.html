@@ -42,7 +42,7 @@
     <section id="dettaglio" class="page hidden">
       <h2>Dettaglio Evento</h2>
       <div id="dettaglioEvento">
-        <!-- Qui sarà mostrato il contenuto -->
+        
       </div>
     </section>
 
@@ -57,9 +57,36 @@
           
         
           <h3>I miei eventi:</h3>
-          <div id="my-events" class="eventi-personali-list">
-            
+          <div id="my-events" class="eventi-personali-list"></div>
+
+          
+          <div id="gestionePostUtente">
+            <h3>I miei post</h3>
+            <div id="listaPostUtente">Caricamento...</div>
           </div>
+
+          <div id="invitationSection">
+            <h3>GESTIONE INVITI</h3>
+              <!-- Selettore evento -->
+            <label for="eventoSelector">Seleziona evento:</label>
+            <select id="eventoSelector">
+              <option value="">-- Seleziona evento --</option>
+            </select>
+            <div class="invitation-lists">
+              <div>
+                <h4>UTENTI INVITABILI</h4>
+                <div id="invitableUsersList"></div>
+              </div>
+              <div>
+                <h4>UTENTI INVITATI</h4>
+                <div id="invitedUsersList"></div>
+              </div>
+            </div>
+            <button id="invitaBtn">Invita</button>
+            <div id="listaInvitiRicevuti" ></div>
+
+          </div>
+          
         </section>
         
 
@@ -102,7 +129,6 @@
         <button id="registerBtn">Registrati</button>
       </div>
     </div>
-    <!-- Modal per modifica evento -->
   <!-- Modale per modifica evento -->
 <div id="editEventModal" class="modal hidden">
   <div class="modal-content">
@@ -120,33 +146,63 @@
   <div class="modal-content">
     <h2>Aggiungi Post</h2>
     
-    <!-- Sezione per tipo e data -->
+    <!-- post-->
     <div id="postInfoSection">
       <label for="postTipo">Tipo del Post:</label>
       <input type="text" id="postTipo" placeholder="Es. Notizia, Commento, Annuncio" required>
       <br><br>
 
-      <label for="postData">Data del Post (YYYY-MM-DD):</label>
-      <input type="text" id="postData" placeholder="Es. 2025-05-04" required>
+      <label for="postData">Data del Post :</label>
+      <input type="datetime-local" id="postData" required>
       <br><br>
 
       <button id="nextStepBtn">Avanti</button>
     </div>
 
-    <!-- Sezione per il contenuto del post -->
+    <!-- contenuto-->
     <div id="postContentSection" class="hidden">
       <label for="contentTitle">Titolo del Post:</label>
       <input type="text" id="contentTitle" required>
       <br><br>
 
-      <label for="postContent">URL del Contenuto:</label>
-      <input type="text" id="postContent" required>
+      <label for="postContent">File da caricare:</label>
+      <input type="file" id="fileContent" required>
       <br><br>
 
       <button id="savePostContentBtn">Salva Post</button>
     </div>
 
     <button id="closeModalBtn">Chiudi</button>
+  </div>
+</div>
+<!-- Modale per modificare il post -->
+<div id="modalPost" class="modal hidden">
+  <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h2>Modifica Post</h2>
+      <form id="updatePostForm">
+          <div>
+              <label for="tipo">Tipo:</label>
+              <input type="text" id="tipo" name="tipo" required />
+          </div>
+          <div>
+              <label for="evento_id">ID Evento (Non modificabile):</label>
+              <input type="text" id="evento_id" name="evento_id" disabled />
+          </div>
+          <div>
+              <label for="data_post">Data Post:</label>
+              <input type="datetime-local" id="data_post" name="data_post" required />
+          </div>
+          <div>
+              <label for="contenuti_url">URL del Contenuto:</label>
+              <input type="file" id="contenuti_url" name="contenuti_url" placeholder="Inserisci URL" required />
+          </div>
+          <div>
+              <label for="contenuti_tipo">Tipo del Contenuto (Titolo):</label>
+              <input type="text" id="contenuti_tipo" name="contenuti_tipo" placeholder="Titolo del contenuto" required />
+          </div>
+          <button type="submit">Aggiorna</button>
+      </form>
   </div>
 </div>
 
@@ -162,5 +218,6 @@
   <script type="module" src="login.js"></script>
   <script type="module" src="post.js"></script>
   <script type="module" src="eventi.js"></script>
+  <script type="moduel" src="inviti.js"></script>
 </body>
 </html>

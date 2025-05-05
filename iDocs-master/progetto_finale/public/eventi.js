@@ -1,15 +1,14 @@
 import { createLogin } from './login.js';
-import { caricaPostEvento,aggiungiPost } from './post.js';
+import { caricaPostEvento,aggiungiPost,caricaPostUtente } from './post.js';
+import { inizializzaInviti } from './inviti.js';
 
-// Crea la logica di login
 const loginManager = createLogin();
 
-// Usa loginManager.isLogged() per verificare se l'utente è loggato
 if (loginManager.isLogged()) {
   console.log("Utente loggato!");
 }
 
-// Funzione per caricare tutti gli eventi dal server e visualizzarli
+
 let eventoInModifica = null;
 document.getElementById("salvaModificaBtn").onclick = salvaModificaEvento;
 export function salvaModificaEvento() {
@@ -72,9 +71,7 @@ function modificaEvento(eventoId) {
     }
   }
   
-  // =====================
-  // Funzione: caricaEventiPubblici
-  // =====================
+
   async function caricaEventiPubblici() {
     try {
       const response = await fetch('/eventi');
@@ -109,9 +106,7 @@ function modificaEvento(eventoId) {
     }
   }
   
-  // =====================
-  // Funzione: caricaEventiPersonali
-  // =====================
+
   async function caricaEventiPersonali() {
     const userId = sessionStorage.getItem("userId");
     console.log("User ID:", userId);
@@ -154,6 +149,7 @@ function modificaEvento(eventoId) {
               <button class="elimina-btn">Elimina</button>
             </div>
           `;
+          inizializzaInviti(evento.id, userId);
         });
   
         container.innerHTML = eventiHTML;
@@ -165,15 +161,14 @@ function modificaEvento(eventoId) {
           div.querySelector(".elimina-btn").onclick = () => eliminaEvento(id);
         });
       }
+      caricaPostUtente();
     } catch (err) {
       console.error("Errore nel caricamento dei tuoi eventi", err);
     }
   }
   
   
-  // =====================
-  // Funzione: caricaDettaglioEvento
-  // =====================
+
 async function caricaDettaglioEvento(id) {
   try {
     const res = await fetch(`/evento/${id}`);
@@ -212,8 +207,7 @@ async function caricaDettaglioEvento(id) {
     `;
 
     container.innerHTML = html;
-
-      // Bind partecipazione
+    //binding
     if (userName) {
       const partecipaBtn = document.getElementById('partecipaBtn');
       if (partecipaBtn) {
@@ -226,7 +220,7 @@ async function caricaDettaglioEvento(id) {
 
     }
 
-    // Bind apertura modali per i post
+    
     const newPostMetaBtn = document.getElementById('newPostMetaBtn');
     if (newPostMetaBtn) {
       newPostMetaBtn.onclick = () => document.getElementById('postMetaModal').classList.remove('hidden');
@@ -237,13 +231,13 @@ async function caricaDettaglioEvento(id) {
       newPostContentBtn.onclick = () => document.getElementById('postContentModal').classList.remove('hidden');
     }
 
-    // Bind salvataggio della modale metadata (tipo + data)
+    
     const saveMetaBtn = document.getElementById('saveMetaBtn');
     if (saveMetaBtn) {
       saveMetaBtn.onclick = () => inserisciMetaPost(id);
     }
 
-    // Bind salvataggio della modale contenuto
+   
     const saveContentBtn = document.getElementById('saveContentBtn');
     if (saveContentBtn) {
       saveContentBtn.onclick = () => {
@@ -252,14 +246,14 @@ async function caricaDettaglioEvento(id) {
       };
     }
 
-    // Bind aggiunta testo semplice
+    
     const aggiungiPostBtn = document.getElementById('aggiungiPostBtn');
     if (aggiungiPostBtn) {
       aggiungiPostBtn.onclick = () => aggiungiPost(id);
     }
 
 
-    // Carica i post e mostra la pagina
+    
     await caricaPostEvento(id);
     mostraPagina('dettaglio');
   }
@@ -273,7 +267,7 @@ async function caricaDettaglioEvento(id) {
 
   
   
-  // Funzione per aggiungere o rimuovere un partecipante
+
   async function partecipazioneEvento(eventoId, username, partecipa) {
     try {
       const response = await fetch(`/evento/${eventoId}/partecipa`, {
@@ -285,7 +279,7 @@ async function caricaDettaglioEvento(id) {
       const result = await response.json();
       if (!result.success) throw new Error(result.message);
   
-      await caricaDettaglioEvento(eventoId); // Aggiorna la UI
+      await caricaDettaglioEvento(eventoId); 
     } catch (err) {
       console.error("Errore nella gestione della partecipazione:", err);
       alert("Errore nella gestione della partecipazione.");
@@ -296,10 +290,7 @@ async function caricaDettaglioEvento(id) {
   
   
   
-  
-  // =====================
-  // Funzione: creaEvento
-  // =====================
+ 
   async function creaEvento() {
     const titolo = document.getElementById("eventTitle").value;
     const data = document.getElementById("eventDate").value;

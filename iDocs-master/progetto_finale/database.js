@@ -123,7 +123,9 @@ const database = {
     inserisciPost: ({ tipo, data_post, autore_id, evento_id }) => {
         return executeQuery(`
             INSERT INTO post (tipo, data_post, autore_id, evento_id)
-            VALUES (?, ?, ?, ?)`, [tipo, data_post, autore_id, evento_id]);
+            VALUES (?, ?, ?, ?)`, [tipo, data_post, autore_id, evento_id]).then(result => {
+                return result.insertId; 
+            });;
     },
 
     inserisciContenuto: ({ url, tipo, id_post }) => {
@@ -187,8 +189,16 @@ const database = {
 
     getPostByEvento: (evento_id) => {
         return executeQuery(`
-            SELECT * FROM post WHERE evento_id = ?`, [evento_id]);
+            SELECT p.id, p.tipo, p.data_post, u.nome AS autore_nome,
+                   c.url, c.tipo AS tipo_contenuto
+            FROM post p
+            JOIN utente u ON p.autore_id = u.id
+            LEFT JOIN contenuto c ON c.id_post = p.id
+            WHERE p.evento_id = ?
+            ORDER BY p.data_post ASC
+        `, [evento_id]);
     },
+    
 
     getContenutiByPost: (post_id) => {
         return executeQuery(`
@@ -199,6 +209,27 @@ const database = {
             SELECT COUNT(*) AS numero FROM partecipa
             WHERE id_evento = ?`, [evento_id]);
     },
+    getPostById: (id) => {
+        return executeQuery(`
+            SELECT p.*, u.nome AS autore_nome, c.url, c.tipo AS tipo_contenuto
+            FROM post p
+            JOIN utente u ON p.autore_id = u.id
+            LEFT JOIN contenuto c ON c.id_post = p.id
+            WHERE p.id = ?
+        `, [id]);
+    },
+    getPostByAutore: (autore_id) => {
+        return executeQuery(`
+            SELECT p.id, p.tipo, p.data_post, e.titolo AS evento_titolo, c.url, c.tipo AS tipo_contenuto
+            FROM post p
+            JOIN evento e ON p.evento_id = e.id
+            LEFT JOIN contenuto c ON c.id_post = p.id
+            WHERE p.autore_id = ?
+            ORDER BY p.data_post DESC
+        `, [autore_id]);
+    },
+    
+    
     
 
     getPostConContenuti: (post_id) => {
@@ -225,7 +256,63 @@ const database = {
             DELETE FROM partecipa
             WHERE id_utente = ? AND id_evento = ?
         `, [idUtente, idEvento]);
-    }
+    },
+    deletePost: async (postId) => {
+        try {
+            
+            await executeQuery(`
+                DELETE FROM contenuto WHERE id_post = ?
+            `, [postId]);
+    
+           
+            await executeQuery(`
+                DELETE FROM post WHERE id = ?
+            `, [postId]);
+    
+            console.log(`Post con ID ${postId} eliminato con successo.`);
+        } catch (error) {
+            console.error("Errore durante l'eliminazione del post:", error);
+            throw error; 
+        }
+    },
+    
+    updatePost: async (postId, { tipo, evento_id, data_post, contenuti }) => {
+        try {
+            
+            await executeQuery(`
+                UPDATE post
+                SET tipo = ?, evento_id = ?, data_post = ?
+                WHERE id = ?
+            `, [tipo, evento_id, data_post, postId]);
+
+           
+            if (contenuti && contenuti.length > 0) {
+                for (let cont of contenuti) {
+                    if (cont.id) {
+                        await executeQuery(`
+                            UPDATE contenuto
+                            SET url = ?, tipo = ?
+                            WHERE id = ?
+                        `, [cont.url, cont.tipo, cont.id]);
+                    } else {
+                        await executeQuery(`
+                            INSERT INTO contenuto (url, tipo, id_post)
+                            VALUES (?, ?, ?)
+                        `, [cont.url, cont.tipo, postId]);
+                    }
+                }
+            }
+
+            console.log(`Post con ID ${postId} e i suoi contenuti sono stati aggiornati con successo.`);
+        } catch (error) {
+            console.error("Errore durante l'aggiornamento del post e dei contenuti:", error);
+            throw error; 
+        }
+    },
+
+
+
+    
     
         
 };

@@ -308,3 +308,17 @@ button, a {
   font-size: 14px;
   cursor: pointer;
 }
+.invitation-box {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin-top: 1em;
+}
+.invitation-lists {
+  display: flex;
+  gap: 1em;
+}
+.invitation-lists div {
+  border: 1px solid #ccc;
+  padding: 0.5em;
+  width: 45%;
+}
