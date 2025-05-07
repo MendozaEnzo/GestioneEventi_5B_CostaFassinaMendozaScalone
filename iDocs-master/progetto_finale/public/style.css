@@ -322,3 +322,6 @@ button, a {
   padding: 0.5em;
   width: 45%;
 }
+.form-group {
+  margin-bottom: 1rem;
+}

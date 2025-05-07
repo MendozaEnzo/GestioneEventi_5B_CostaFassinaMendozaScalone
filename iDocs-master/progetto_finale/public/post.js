@@ -51,7 +51,6 @@ export async function aggiungiPost(eventoId) {
   const modal = document.getElementById('aggiungiPostModal');
   modal.classList.remove('hidden');
 
-  
   document.getElementById('postInfoSection').classList.remove('hidden');
   document.getElementById('postContentSection').classList.add('hidden');
 
@@ -59,57 +58,66 @@ export async function aggiungiPost(eventoId) {
   const savePostBtn = document.getElementById('savePostContentBtn');
   const closeModalBtn = document.getElementById('closeModalBtn');
 
-  //crezione post
+  // creazione post
   nextStepBtn.onclick = async () => {
     const postTipo = document.getElementById('postTipo').value.trim();
-    const postData = document.getElementById('postData').value.trim();
-  
-    if (!postTipo || !postData) {
-      alert('Inserisci un tipo valido e una data valida del post.');
+    if (!postTipo) {
+      alert('Inserisci un tipo valido per il post.');
       return;
     }
-  
+
+    // Ottieni data e ora locali senza secondi
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const formattedDataPost = `${year}-${month}-${day} ${hours}:${minutes}:00`;
+
     try {
       const res = await fetch('/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tipo: postTipo,
-          data_post: new Date(postData).toISOString().slice(0, 19).replace('T', ' '),
+          data_post: formattedDataPost,
           autore_id: parseInt(userId, 10),
           evento_id: eventoId,
         }),
       });
-  
+
       const result = await res.json();
-      console.log('Risultato dal server:', result); 
-  
+      console.log('Risultato dal server:', result);
+
       if (result.result === 'ok') {
-        sessionStorage.setItem('id_post', result.id_post); 
+        sessionStorage.setItem('id_post', result.id_post);
         console.log('id_post salvato in sessionStorage:', result.id_post);
-        
+
         document.getElementById('postInfoSection').classList.add('hidden');
         document.getElementById('postContentSection').classList.remove('hidden');
       } else {
         alert('Errore nell\'aggiunta del post.');
       }
-  
+
     } catch (err) {
       console.error('Errore aggiunta post:', err);
       alert('Errore durante l\'aggiunta del post.');
     }
   };
 
-  //contenuto
+  // contenuto
   savePostBtn.onclick = async () => {
     const contentTitle = document.getElementById('contentTitle').value.trim();
     const fileContent = document.getElementById('fileContent').files[0];
     const idPostStr = sessionStorage.getItem('id_post');
+
     if (!idPostStr || isNaN(parseInt(idPostStr, 10))) {
       alert('Errore: id_post non trovato o non valido in sessionStorage.');
       console.error('id_post non valido:', idPostStr);
       return;
     }
+
     const idPost = parseInt(idPostStr, 10);
 
     if (!contentTitle || !fileContent) {
@@ -120,7 +128,7 @@ export async function aggiungiPost(eventoId) {
     const formData = new FormData();
     formData.append('file', fileContent);
     formData.append('tipo', contentTitle);
-    formData.append('id_post', idPost); 
+    formData.append('id_post', idPost);
 
     try {
       const res = await fetch('/contenuto', {
@@ -149,6 +157,7 @@ export async function aggiungiPost(eventoId) {
     modal.classList.add('hidden');
   };
 }
+
 
 export async function caricaPostUtente() {
     const userId = sessionStorage.getItem("userId");
