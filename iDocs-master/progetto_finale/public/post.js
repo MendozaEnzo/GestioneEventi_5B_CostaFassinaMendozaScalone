@@ -190,79 +190,86 @@ export async function aggiungiPost(eventoId) {
 
 
 export async function caricaPostUtente() {
-    const userId = sessionStorage.getItem("userId");
-    const container = document.getElementById("listaPostUtente");
-  
-    if (!userId || !container) return;
-  
-    try {
-      const res = await fetch(`/post/utente/${userId}`);
-      const posts = await res.json();
-  
-      if (posts.length === 0) {
-        container.innerHTML = "<p>Non hai ancora creato post.</p>";
-      } else {
-        container.innerHTML = posts.map(post => {
-          let contentHtml = '';
-        
-          if (post.url.match(/\.(jpeg|jpg|png|gif)$/i)) {
-            contentHtml = `<img src="${post.url}" alt="Immagine" style="max-width: 100%; max-height: 300px;">`;
-          } else if (post.url.match(/\.(mp4|webm|ogg)$/i)) {
-            contentHtml = `<video controls style="max-width: 100%; max-height: 300px;">
-                             <source src="${post.url}">
-                             Il tuo browser non supporta il video.
-                           </video>`;
-          } else if (post.url.match(/\.pdf$/i)) {
-            contentHtml = `<iframe src="${post.url}" width="100%" height="400px"></iframe>`;
-          } else if (post.url) {
-            contentHtml = `<a href="${post.url}" target="_blank">Scarica il file</a>`;
-          } else {
-            contentHtml = "Nessun contenuto disponibile";
-          }
-        
-          return `
-            <div class="post-utente-container" data-post-id="${post.id}">
-              <div class="post-utente">
-                <p><strong>Evento:</strong> ${post.evento_titolo}</p>
-                <p><strong>Tipo:</strong> ${post.tipo}</p>
-                <p><strong>Data:</strong> ${new Date(post.data_post).toLocaleString()}</p>
-                <p><strong>Titolo contenuto:</strong> ${post.tipo_contenuto || "—"}</p>
-                <div class="contenuto">${contentHtml}</div>
-              </div>
-              <div class="post-utente-actions">
-                <button class="elimina-post-btn" data-id="${post.id}">Elimina</button>
-              </div>
+  const userId = sessionStorage.getItem("userId");
+  const container = document.getElementById("listaPostUtente");
+
+  if (!userId || !container) return;
+
+  try {
+    const res = await fetch(`/post/utente/${userId}`);
+    const posts = await res.json();
+
+    if (posts.length === 0) {
+      container.innerHTML = "<p>Non hai ancora creato post.</p>";
+    } else {
+      container.innerHTML = posts.map(post => {
+        let contentHtml = '';
+      
+        if (post.url.match(/\.(jpeg|jpg|png|gif)$/i)) {
+          contentHtml = `<img src="${post.url}" alt="Immagine" style="max-width: 100%; max-height: 300px;">`;
+        } else if (post.url.match(/\.(mp4|webm|ogg)$/i)) {
+          contentHtml = `<video controls style="max-width: 100%; max-height: 300px;">
+                           <source src="${post.url}">
+                           Il tuo browser non supporta il video.
+                         </video>`;
+        } else if (post.url.match(/\.pdf$/i)) {
+          contentHtml = `<iframe src="${post.url}" width="100%" height="400px"></iframe>`;
+        } else if (post.url) {
+          contentHtml = `<a href="${post.url}" target="_blank">Scarica il file</a>`;
+        } else {
+          contentHtml = "Nessun contenuto disponibile";
+        }
+      
+        return `
+          <div class="post-utente-container" data-post-id="${post.id}">
+            <div class="post-utente">
+              <p><strong>Evento:</strong> ${post.evento_titolo}</p>
+              <p><strong>Tipo:</strong> ${post.tipo}</p>
+              <p><strong>Data:</strong> ${new Date(post.data_post).toLocaleString()}</p>
+              <p><strong>Titolo contenuto:</strong> ${post.tipo_contenuto || "—"}</p>
+              <div class="contenuto">${contentHtml}</div>
             </div>
-          `;
-        }).join("");
-        
-        
-        document.querySelectorAll(".elimina-post-btn").forEach(btn => {
-          btn.addEventListener("click", async (e) => {
-            const postId = e.target.dataset.id;
-            if (confirm("Sei sicuro di voler eliminare questo post?")) {
-              try {
-                const delRes = await fetch(`/post/${postId}`, { method: "DELETE" });
-                const result = await delRes.json();
-                if (result.result === "ok") {
-                  caricaPostUtente(); 
-                } else {
-                  alert("Errore durante l'eliminazione del post.");
-                }
-              } catch (err) {
-                console.error("Errore nell'eliminazione:", err);
-                alert("Errore durante l'eliminazione.");
-              }
-            }
-          });
-        });
-  
-      }
-  
-    } catch (err) {
-      console.error("Errore nel recupero dei post utente:", err);
-      container.innerHTML = "<p>Errore nel caricamento dei tuoi post.</p>";
+            <div class="post-utente-actions">
+              <!-- Bottone senza onclick -->
+              <button class="elimina-post-btn" data-id="${post.id}">Elimina</button>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
-  }  
+
+    const deleteButtons = container.querySelectorAll(".elimina-post-btn");
+    for (const btn of deleteButtons) {
+      btn.onclick = function () {
+        const postId = btn.getAttribute('data-id');
+        eliminaPost(postId);
+      };
+    }
+
+  } catch (err) {
+    console.error("Errore nel recupero dei post utente:", err);
+    container.innerHTML = "<p>Errore nel caricamento dei tuoi post.</p>";
+  }
+}
+
+
+async function eliminaPost(postId) {
+  if (confirm("Sei sicuro di voler eliminare questo post?")) {
+    try {
+      const delRes = await fetch(`/post/${postId}`, { method: "DELETE" });
+      const result = await delRes.json();
+      if (result.result === "ok") {
+        caricaPostUtente(); 
+      } else {
+        alert("Errore durante l'eliminazione del post.");
+      }
+    } catch (err) {
+      console.error("Errore nell'eliminazione:", err);
+      alert("Errore durante l'eliminazione.");
+    }
+  }
+}
+
+
 
 

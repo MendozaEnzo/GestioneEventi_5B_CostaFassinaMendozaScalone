@@ -1,3 +1,4 @@
+
 import { createLogin } from './login.js';
 import { createNavigator } from "./navigator.js";
 export { caricaDettaglioEvento };
@@ -6,10 +7,23 @@ import {
   caricaEventiPersonali,
   caricaDettaglioEvento,
   creaEvento,
-  salvaModificaEvento} from "./eventi.js";
+  salvaModificaEvento
+} from "./eventi.js";
+
 
 const loginLink = document.querySelector('.nav-right a[href="#login"]');
 const closeBtn = document.getElementById("closeLogin");
+const aggiungiPostBtn = document.getElementById('aggiungiPostBtn');
+const closeAddPost = document.getElementById('closeAddPost');
+const homeLink = document.querySelector('.nav-left a[href="#homepage"]');
+const searchBtn = document.getElementById('searchBtn');
+const searchInput = document.getElementById('searchInput');
+const dashboardBtn = document.getElementById("dashboardBtn");
+const addEventBtn = document.getElementById("add-event-btn");
+const closeAddEventBtn = document.getElementById("closeAddEvent");
+const creaEventoBtn = document.getElementById("creaEventoBtn");
+const closeBtnEvento = document.getElementById("closeAddEvent");
+
 
 if (loginLink) {
   loginLink.onclick = (e) => {
@@ -28,24 +42,36 @@ if (closeBtn) {
   };
 }
 
+
 createLogin();
 createNavigator(document.querySelector("main"));
 
-document.getElementById("dashboardBtn").onclick = function () {
-  location.hash = "#dashboard";
-};
 
-document.getElementById("add-event-btn").onclick = function () {
-  apriModaleEvento();
-};
+if (dashboardBtn) {
+  dashboardBtn.onclick = function () {
+    location.hash = "#dashboard";
+    caricaEventiPersonali();
+  };
+}
 
-document.getElementById("closeAddEvent").onclick = function () {
-  chiudiModaleEvento();
-};
 
-document.getElementById("creaEventoBtn").onclick = function () {
-  creaEvento();
-};
+if (addEventBtn) {
+  addEventBtn.onclick = function () {
+    apriModaleEvento();
+  };
+}
+
+if (closeAddEventBtn) {
+  closeAddEventBtn.onclick = function () {
+    chiudiModaleEvento();
+  };
+}
+
+if (creaEventoBtn) {
+  creaEventoBtn.onclick = function () {
+    creaEvento();
+  };
+}
 
 function apriModaleEvento() {
   document.getElementById("addEventModal").classList.remove("hidden");
@@ -55,16 +81,64 @@ function chiudiModaleEvento() {
 }
 
 
+function filtroEventi() {
+  const searchText = searchInput.value;
+  const eventiContainer = document.getElementById('eventiPubblici');
+  const eventi = eventiContainer.querySelectorAll('.evento');
+  const testoRicerca = searchText.toLowerCase().trim();
+
+  if (testoRicerca === '') {
+    for (let i = 0; i < eventi.length; i++) {
+      eventi[i].style.display = 'block';
+    }
+    return;
+  }
+
+  for (let i = 0; i < eventi.length; i++) {
+    const evento = eventi[i];
+    const titolo = evento.querySelector('h3').textContent.toLowerCase();
+    const descrizione = evento.querySelector('p').textContent.toLowerCase();
+    const data = evento.querySelectorAll('p')[1] ? evento.querySelectorAll('p')[1].textContent.toLowerCase() : '';
+    const creatore = evento.querySelectorAll('p')[2] ? evento.querySelectorAll('p')[2].textContent.toLowerCase() : '';
+
+    if (titolo.includes(testoRicerca) ||
+        descrizione.includes(testoRicerca) ||
+        data.includes(testoRicerca) ||
+        creatore.includes(testoRicerca)) {
+      evento.style.display = 'block';
+    } else {
+      evento.style.display = 'none';
+    }
+  }
+}
 
 
+if (searchBtn) {
+  searchBtn.onclick = filtroEventi;
+}
+
+if (searchInput) {
+  searchInput.onkeypress = function (event) {
+    if (event.key === 'Enter') {
+      filtroEventi();
+    }
+  };
+}
 
 
+function ripristinaEventi() {
+  caricaEventiPubblici();
+  searchInput.value = '';
+}
 
+if (homeLink) {
+  homeLink.onclick = function (e) {
+    e.preventDefault();
+    location.hash = "#homepage";
+    ripristinaEventi();
+  };
+}
 
-document.getElementById("dashboardBtn").onclick = function () {
-  location.hash = "#dashboard";
-  caricaEventiPersonali();
-};
 
 let eventoInModifica = null;
 
@@ -77,67 +151,6 @@ export function apriModaleModifica(evento) {
 
   document.getElementById("editEventModal").classList.remove("hidden");
 }
-
-// Questo codice si troverà alla fine del file, dopo che il DOM è stato caricato
-const aggiungiPostBtn = document.getElementById('aggiungiPostBtn');
-if (aggiungiPostBtn) {
-  aggiungiPostBtn.onclick = () => {
-    document.getElementById('aggiungiPostModal').classList.remove('hidden');
-  };
-} else {
-  console.log("Elemento 'aggiungiPostBtn' non trovato!");
-}
-
-// Gestione chiusura della modale
-const closeAddPost = document.getElementById('closeAddPost');
-if (closeAddPost) {
-  closeAddPost.onclick = () => {
-    document.getElementById('aggiungiPostModal').classList.add('hidden');
-  };
-}
-
-
-function filtroEventi() {
-  const searchText = document.getElementById('searchInput').value;
-  const eventiContainer = document.getElementById('eventiPubblici');
-  const eventi = eventiContainer.querySelectorAll('.evento');
-  
-  const testoRicerca = searchText.toLowerCase().trim();
-  
-  if (testoRicerca === '') {
-    for (let i = 0; i < eventi.length; i++) {
-      eventi[i].style.display = 'block';
-    }
-    return;
-  }
-  
-  for (let i = 0; i < eventi.length; i++) {
-    const evento = eventi[i];
-    const titolo = evento.querySelector('h3').textContent.toLowerCase();
-    const descrizione = evento.querySelector('p').textContent.toLowerCase();
-    const data = evento.querySelectorAll('p')[1] ? evento.querySelectorAll('p')[1].textContent.toLowerCase() : '';
-    const creatore = evento.querySelectorAll('p')[2] ? evento.querySelectorAll('p')[2].textContent.toLowerCase() : '';
-    
-    if (titolo.includes(testoRicerca) || 
-        descrizione.includes(testoRicerca) || 
-        data.includes(testoRicerca) || 
-        creatore.includes(testoRicerca)) {
-      evento.style.display = 'block';
-    } else {
-      evento.style.display = 'none';
-    }
-  }
-}
-
-document.getElementById('searchBtn').onclick = filtroEventi;
-
-document.getElementById('searchInput').onkeypress = function(event) {
-  if (event.key === 'Enter') {
-    filtroEventi();
-  }
-};
-
-
 
 
 caricaEventiPubblici();
