@@ -97,7 +97,45 @@ if (closeAddPost) {
 }
 
 
+function filtroEventi() {
+  const searchText = document.getElementById('searchInput').value;
+  const eventiContainer = document.getElementById('eventiPubblici');
+  const eventi = eventiContainer.querySelectorAll('.evento');
+  
+  const testoRicerca = searchText.toLowerCase().trim();
+  
+  if (testoRicerca === '') {
+    for (let i = 0; i < eventi.length; i++) {
+      eventi[i].style.display = 'block';
+    }
+    return;
+  }
+  
+  for (let i = 0; i < eventi.length; i++) {
+    const evento = eventi[i];
+    const titolo = evento.querySelector('h3').textContent.toLowerCase();
+    const descrizione = evento.querySelector('p').textContent.toLowerCase();
+    const data = evento.querySelectorAll('p')[1] ? evento.querySelectorAll('p')[1].textContent.toLowerCase() : '';
+    const creatore = evento.querySelectorAll('p')[2] ? evento.querySelectorAll('p')[2].textContent.toLowerCase() : '';
+    
+    if (titolo.includes(testoRicerca) || 
+        descrizione.includes(testoRicerca) || 
+        data.includes(testoRicerca) || 
+        creatore.includes(testoRicerca)) {
+      evento.style.display = 'block';
+    } else {
+      evento.style.display = 'none';
+    }
+  }
+}
 
+document.getElementById('searchBtn').onclick = filtroEventi;
+
+document.getElementById('searchInput').onkeypress = function(event) {
+  if (event.key === 'Enter') {
+    filtroEventi();
+  }
+};
 
 
 
