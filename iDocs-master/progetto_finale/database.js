@@ -176,9 +176,13 @@ const database = {
 
     getInvitiByUtente: (utente_id) => {
         return executeQuery(`
-            SELECT * FROM invito
-            WHERE utente_destinatario_id = ?`, [utente_id]);
+           SELECT invito.*, utente.nome AS mittente_nome 
+            FROM invito
+            JOIN utente ON invito.utente_mittente_id = utente.id
+            WHERE invito.utente_destinatario_id = ?
+            `, [utente_id]);
     },
+    
 
     getPartecipazioniByUtente: (utente_id) => {
         return executeQuery(`
@@ -309,6 +313,16 @@ const database = {
             throw error; 
         }
     },
+    aggiornaStatoInvito: (evento_id, utente_destinatario_id, nuovoStato) => {
+        return executeQuery(`
+            UPDATE invito
+            SET stato = ?
+            WHERE evento_id = ? AND utente_destinatario_id = ?
+        `, [nuovoStato, evento_id, utente_destinatario_id]);
+    },
+    
+    
+    
 
 
 

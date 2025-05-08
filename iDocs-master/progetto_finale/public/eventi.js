@@ -186,7 +186,7 @@ async function caricaDettaglioEvento(id) {
       ${userName ? `
         <button id="partecipaBtn" class="btn" style="display: ${isPartecipante ? 'none' : 'inline-block'}">Partecipa</button>
         <button id="nonPartecipaBtn" class="btn" style="display: ${isPartecipante ? 'inline-block' : 'none'}">Annulla partecipazione</button>
-      ` : `<p>Per partecipare, <a href="#login">effettua il login</a></p>`}
+      ` : `<p>Per partecipare, devi effettuare il login</p>`}
     </div>`;
 
     // TITOLO E INFORMAZIONI

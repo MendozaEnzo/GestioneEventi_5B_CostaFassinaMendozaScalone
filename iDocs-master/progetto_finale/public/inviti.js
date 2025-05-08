@@ -1,7 +1,12 @@
 let selectedEventoId = null;
-let utenteLoggatoId = null;
 let utenti = [];
 let utentiInvitati = [];
+let utenteLoggatoId = parseInt(sessionStorage.getItem("userId"));
+if (isNaN(utenteLoggatoId)) {
+    console.log("Errore: l'ID dell'utente non è stato trovato.");
+}
+const userId = sessionStorage.getItem("userId");
+
 
 
 export function inizializzaInviti(eventoId, userId) {
@@ -9,7 +14,6 @@ export function inizializzaInviti(eventoId, userId) {
     utenteLoggatoId = userId;
 
     console.log("Inizializzazione inviti", eventoId, userId);
-
    
     const invitationSection = document.getElementById("invitationSection");
     if (invitationSection) {
@@ -19,6 +23,7 @@ export function inizializzaInviti(eventoId, userId) {
 
     caricaUtenti();
     caricaInvitiRicevuti();
+    
 }
 
 function caricaUtenti() {
@@ -26,8 +31,10 @@ function caricaUtenti() {
         .then(res => res.json())
         .then(data => {
             utenti = data;
-
-            const listaUtentiInvitabili = utenti.filter(utente => utente.id !== utenteLoggatoId);
+            
+            const listaUtentiInvitabili = utenti.filter(utente => parseInt(utente.id) !== parseInt(utenteLoggatoId));
+            console.log("Utente loggato:", utenteLoggatoId);
+            console.log("lista utenti: ",listaUtentiInvitabili);
 
             let html = '';
             listaUtentiInvitabili.forEach(utente => {
@@ -59,9 +66,8 @@ function aggiornaListe() {
     let invitableHTML = "";
     let invitedHTML = "";
 
+    // Qui escludi direttamente l'utente loggato
     utenti.forEach(u => {
-        if (u.id === utenteLoggatoId) return;
-
         if (utentiInvitati.includes(u.id)) {
             invitedHTML += `<div>${u.nome}</div>`;
         } else {
@@ -86,16 +92,32 @@ function invitaSelezionati() {
         return;
     }
 
+    // Contatore per tenere traccia degli inviti inviati con successo
+    let invitiInviati = 0;
+
     checkboxes.forEach(cb => {
         const destinatarioId = parseInt(cb.value);
 
-        const dataInvito = new Date().toISOString().slice(0, 19).replace("T", " ");
+        const now = new Date();
+
+        // Estrai anno, mese, giorno, ore, minuti e secondi
+        const anno = now.getFullYear();
+        const mese = String(now.getMonth() + 1).padStart(2, '0'); // Mesi partono da 0
+        const giorno = String(now.getDate()).padStart(2, '0');
+        const ore = String(now.getHours()).padStart(2, '0');
+        const minuti = String(now.getMinutes()).padStart(2, '0');
+        const secondi = String(now.getSeconds()).padStart(2, '0');
+
+        // Formatta la data nel formato MySQL (YYYY-MM-DD HH:mm:ss)
+        const dataCorretta = `${anno}-${mese}-${giorno} ${ore}:${minuti}:${secondi}`;
+        console.log(dataCorretta);
+
         const invito = {
             evento_id: selectedEventoId,
-            mittente_id: utenteLoggatoId,
+            mittente_id: parseInt(utenteLoggatoId),
             destinatario_id: destinatarioId,
             stato: "inviato",
-            data: dataInvito
+            data: dataCorretta
         };
 
         fetch("/invito", {
@@ -107,7 +129,13 @@ function invitaSelezionati() {
             .then(data => {
                 if (data.result === "ok") {
                     utentiInvitati.push(destinatarioId);
-                    aggiornaListe();
+                    invitiInviati++; // Incrementa il contatore degli inviti inviati
+
+                    // Aggiorna le liste solo se tutti gli inviti sono stati processati
+                    if (invitiInviati === checkboxes.length) {
+                        aggiornaListe();
+                        alert(`Inviti inviati con successo! (${invitiInviati} utenti invitati)`); // Alert di conferma
+                    }
                 } else {
                     alert("Errore: " + data.error);
                 }
@@ -161,36 +189,49 @@ function caricaInvitiRicevuti() {
     fetch(`/inviti/${userId}`) 
         .then(res => res.json())
         .then(inviti => {
-            listaInviti.innerHTML = ''; 
+            listaInviti.innerHTML = '';
 
-            if (inviti.length === 0) {
+            const invitiAttivi = inviti.filter(inv => inv.stato === "inviato");
+
+            if (invitiAttivi.length === 0) {
                 listaInviti.innerHTML = 'Non hai inviti ricevuti.';
                 return;
             }
 
-            inviti.forEach(invito => {
+            let htmlInviti = '';  // Variabile per costruire l'HTML dei singoli inviti
+
+            invitiAttivi.forEach(invito => {
                 fetch(`/evento/${invito.evento_id}`)
                     .then(res => res.json())
                     .then(evento => {
-                        const divInvito = document.createElement('div');
-                        divInvito.classList.add('invito');
-                        divInvito.innerHTML = `
-                            <h4>${evento.titolo}</h4>
-                            <p>Data Evento: ${new Date(evento.data).toLocaleDateString()}</p>
-                            <p>Stato: ${invito.stato}</p>
-                            <p>Data Invito: ${new Date(invito.data).toLocaleString()}</p>
-                            <button class="partecipaBtn" data-id="${evento.id}">Partecipa</button>
-                            <button class="annullaInvitoBtn" data-id="${invito.id}">Annulla Invito</button>
+                        htmlInviti += `
+                            <div class="invito">
+                                <h4>${evento.titolo}</h4>
+                                <p>Data Evento: ${new Date(evento.data).toLocaleDateString()}</p>
+                                <p>Stato: ${invito.stato}</p>
+                                <p>Data Invito: ${new Date(invito.data).toLocaleString()}</p>
+                                <p>Invitato da: ${invito.mittente_nome || "Sconosciuto"}</p>
+                                <button class="partecipaBtn" data-id="${evento.id}">Partecipa</button>
+                                <button class="annullaInvitoBtn" data-id="${invito.id}">Annulla Invito</button>
+                            </div>
                         `;
-                        listaInviti.appendChild(divInvito);
+                        
+                        // Associa gli eventi dopo aver aggiunto l'HTML
+                        listaInviti.innerHTML = htmlInviti;
 
-                        divInvito.querySelector('.partecipaBtn').onclick = () => {
-                            partecipaEvento(evento.id, userId);
-                        };
+                        // Impostiamo il comportamento dei bottoni solo dopo aver aggiornato l'HTML
+                        listaInviti.querySelectorAll('.partecipaBtn').forEach(button => {
+                            button.onclick = () => {
+                                partecipaEvento(button.getAttribute('data-id'), userId);
+                            };
+                        });
 
-                        divInvito.querySelector('.annullaInvitoBtn').onclick = () => {
-                            annullaInvito(invito.id);
-                        };
+                        listaInviti.querySelectorAll('.annullaInvitoBtn').forEach(button => {
+                            button.onclick = () => {
+                                rifiutaInvito(button.getAttribute('data-id'));
+                            };
+                        });
+
                     })
                     .catch(err => console.error("Errore nel recupero evento:", err));
             });
@@ -202,42 +243,80 @@ function caricaInvitiRicevuti() {
 }
 
 
+
 function partecipaEvento(eventoId, userId) {
-    fetch(`/evento/${eventoId}/partecipa`, {
-        method: "POST",
+    
+    fetch(`/invito`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, partecipa: true })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Sei stato aggiunto all'evento!");
-                caricaInvitiRicevuti(); 
-            } else {
-                alert("Errore durante la partecipazione.");
-            }
+        body: JSON.stringify({
+            evento_id: eventoId,
+            utente_destinatario_id: userId,
+            stato: "accettato"
         })
-        .catch(err => console.error("Errore durante la partecipazione:", err));
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Risposta partecipazione evento:", data);
+        if (data.result === "ok") {
+            console.log("do: ",userId);
+            console.log("do: ",eventoId);
+            return fetch(`/evento/${eventoId}/partecipa`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id_utente: userId ,partecipa: true })
+            });
+        } else {
+            throw new Error("Errore nell'accettazione dell'invito");
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Response:", data);
+        if (data.success) {
+            alert("Hai accettato l'invito e sei stato aggiunto all'evento.");
+            caricaInvitiRicevuti();
+        } else {
+            alert("Errore durante la partecipazione all'evento.");
+        }
+    })
+    .catch(err => {
+        console.error("Errore durante l'accettazione/partecipazione:", err);
+    });
 }
 
-function annullaInvito(invitoId) {
-    fetch(`/invito/${invitoId}`, {
-        method: "DELETE"
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Invito annullato.");
-                caricaInvitiRicevuti();  
-            } else {
-                alert("Errore nell'annullare l'invito.");
-            }
+
+
+
+function rifiutaInvito(invitoId) {
+    fetch(`/invito`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            evento_id: selectedEventoId,
+            utente_destinatario_id: utenteLoggatoId,
+            stato: "rifiutato"
         })
-        .catch(err => console.error("Errore nell'annullare l'invito:", err));
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.result === "ok") {
+            alert("Hai rifiutato l'invito.");
+            caricaInvitiRicevuti();
+        } else {
+            alert("Errore nel rifiutare l'invito.");
+        }
+    })
+    .catch(err => {
+        console.error("Errore nel rifiutare l'invito:", err);
+        alert("Impossibile rifiutare l'invito. Riprova più tardi.");
+    });
 }
+
+
+
 
 window.onload = function () {
-    utenteLoggatoId = parseInt(document.getElementById("userId"));
 
     
     const eventoSelector = document.getElementById("eventoSelector");

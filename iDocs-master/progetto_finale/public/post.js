@@ -21,18 +21,48 @@ export async function caricaPostEvento(eventoId) {
     if (posts.length === 0) {
       container.innerHTML = '<p>Nessun post ancora.</p>';
     } else {
-      posts.forEach(post => {
-        const postElement = document.createElement('div');
-        postElement.classList.add('post'); 
-        postElement.innerHTML = `
+      let postsHtml = ''; 
+
+    posts.forEach(post => {
+      
+      let contentHtml = '';
+
+      
+      if (post.url.match(/\.(jpeg|jpg|gif|png)$/)) {
+        contentHtml = `<img src="${post.url}" alt="Contenuto immagine" style="max-width: 100%; max-height: 300px; height: auto;">`;
+      }
+      
+      else if (post.url.match(/\.(mp4|webm|ogg)$/)) {
+        contentHtml = `<video controls style="max-width: 100%; max-height: 300px;">
+                        <source src="${post.url}" type="video/mp4">
+                        Il tuo browser non supporta il formato video.
+                      </video>`;
+      }
+      
+      else if (post.url.match(/\.pdf$/)) {
+        contentHtml = `<iframe src="${post.url}" width="100%" height="400px">Il tuo browser non supporta il visualizzatore PDF.</iframe>`;
+      }
+      
+      else {
+        contentHtml = `<a href="${post.url}" target="_blank">Scarica il file</a>`;
+      }
+
+      
+      postsHtml += `
+        <div class="post">
           <p><strong>Creato da:</strong> ${post.autore_nome}</p>
           <p><strong>Data:</strong> ${new Date(post.data_post).toLocaleString()}</p>
           <p><strong>Tipo:</strong> ${post.tipo}</p>
           <p><strong>Titolo:</strong> ${post.tipo_contenuto}</p>
-          <p><a href="${post.url}" target="_blank">${post.url}</a></p>
-        `;
-        container.appendChild(postElement);
-      });
+          <p>${contentHtml}</p>
+        </div>
+      `;
+    });
+
+
+    const container = document.getElementById("postList");
+    container.innerHTML = postsHtml;
+
     }
   } catch (err) {
     console.error('Errore caricamento post:', err);
@@ -172,21 +202,40 @@ export async function caricaPostUtente() {
       if (posts.length === 0) {
         container.innerHTML = "<p>Non hai ancora creato post.</p>";
       } else {
-        container.innerHTML = posts.map(post => `
-          <div class="post-utente-container" data-post-id="${post.id}">
-            <div class="post-utente">
-              <p><strong>Evento:</strong> ${post.evento_titolo}</p>
-              <p><strong>Tipo:</strong> ${post.tipo}</p>
-              <p><strong>Data:</strong> ${new Date(post.data_post).toLocaleString()}</p>
-              <p><strong>Titolo contenuto:</strong> ${post.tipo_contenuto || "—"}</p>
-              <p><a href="${post.url}" target="_blank">${post.url || ""}</a></p>
+        container.innerHTML = posts.map(post => {
+          let contentHtml = '';
+        
+          if (post.url.match(/\.(jpeg|jpg|png|gif)$/i)) {
+            contentHtml = `<img src="${post.url}" alt="Immagine" style="max-width: 100%; max-height: 300px;">`;
+          } else if (post.url.match(/\.(mp4|webm|ogg)$/i)) {
+            contentHtml = `<video controls style="max-width: 100%; max-height: 300px;">
+                             <source src="${post.url}">
+                             Il tuo browser non supporta il video.
+                           </video>`;
+          } else if (post.url.match(/\.pdf$/i)) {
+            contentHtml = `<iframe src="${post.url}" width="100%" height="400px"></iframe>`;
+          } else if (post.url) {
+            contentHtml = `<a href="${post.url}" target="_blank">Scarica il file</a>`;
+          } else {
+            contentHtml = "Nessun contenuto disponibile";
+          }
+        
+          return `
+            <div class="post-utente-container" data-post-id="${post.id}">
+              <div class="post-utente">
+                <p><strong>Evento:</strong> ${post.evento_titolo}</p>
+                <p><strong>Tipo:</strong> ${post.tipo}</p>
+                <p><strong>Data:</strong> ${new Date(post.data_post).toLocaleString()}</p>
+                <p><strong>Titolo contenuto:</strong> ${post.tipo_contenuto || "—"}</p>
+                <div class="contenuto">${contentHtml}</div>
+              </div>
+              <div class="post-utente-actions">
+                <button class="elimina-post-btn" data-id="${post.id}">Elimina</button>
+              </div>
             </div>
-            <div class="post-utente-actions">
-              <button class="elimina-post-btn" data-id="${post.id}">Elimina</button>
-            </div>
-          </div>
-        `).join("");
-  
+          `;
+        }).join("");
+        
         
         document.querySelectorAll(".elimina-post-btn").forEach(btn => {
           btn.addEventListener("click", async (e) => {

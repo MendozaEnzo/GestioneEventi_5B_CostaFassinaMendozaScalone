@@ -93,9 +93,10 @@ nav {
 
 .modal-content {
   background-color: #fff;
-  padding: 30px;
+  padding: 20px;
   border-radius: 12px;
-  width: 350px;
+  width: 90%;
+  max-width: 400px;
   text-align: center;
   box-shadow: 0px 0px 20px rgba(0,0,0,0.2);
   transform: scale(0.9);
@@ -161,10 +162,12 @@ button, a {
   justify-content: center;
   align-items: center;
   margin-bottom: 30px;
+  padding: 0 1rem;
 }
 
 .search-bar input {
-  width: 300px;
+  width: 100%;
+  max-width: 100%;
   padding: 8px;
   font-size: 16px;
   border-radius: 5px;

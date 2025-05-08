@@ -66,15 +66,6 @@ app.post("/evento", async (req, res) => {
 });
 
 
-app.post("/invito", async (req, res) => {
-    const { evento_id, mittente_id, destinatario_id, stato, data } = req.body;
-    try {
-        await database.invitaUtente(evento_id, mittente_id, destinatario_id, stato, data);
-        res.json({ result: "ok" });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
 
 
 app.post("/partecipa", async (req, res) => {
@@ -167,34 +158,91 @@ app.post('/evento/:id/partecipanti', (req, res) => {
 });
 app.post('/evento/:id/partecipa', async (req, res) => {
     const eventoId = req.params.id;
-    const { username, partecipa } = req.body;
+    const { id_utente, username, partecipa } = req.body;
+
+    console.log("eventoId:", eventoId);
+    console.log("id_utente:", id_utente);
+    console.log("username:", username);
 
     try {
         const utenti = await database.getUtenti();
-        const utente = utenti.find(u => u.nome === username);
+        let utente;
+
+        if (id_utente) {
+            utente = utenti.find(u => u.id === Number(id_utente));
+        } else if (username) {
+            utente = utenti.find(u => u.nome === username);
+        }
 
         if (!utente) {
             return res.status(404).json({ success: false, message: "Utente non trovato" });
         }
 
-        if (partecipa) {
-            await database.partecipaEvento(utente.id, eventoId);
-        } else {
-            await database.rimuoviPartecipazione(utente.id, eventoId); 
+        if (partecipa === false) {
+            await database.rimuoviPartecipazione(utente.id, eventoId);
+            return res.json({ success: true, message: "Partecipazione rimossa" });
         }
 
-        res.json({ success: true });
+        const result = await database.partecipaEvento(utente.id, eventoId);
+
+        if (result?.error || result?.message) {
+            return res.status(400).json({ success: false, message: result.error || result.message });
+        }
+
+        res.json({ success: true, message: 'Partecipazione completata con successo' });
     } catch (err) {
         console.error("Errore durante la partecipazione:", err);
         res.status(500).json({ success: false, message: "Errore durante la partecipazione" });
     }
 });
+
+/*app.post('/evento/:eventoId/partecipa', async (req, res) => {
+    // Estrai id_utente e id_evento dal corpo della richiesta
+    const { id_utente } = req.body;
+    const id_evento = req.params.eventoId;
+    console.log("utenteId: ",id_utente);
+    console.log("eventoId: ",id_evento);
+    if (!id_utente || !id_evento) {
+        return res.status(400).json({ success: false, message: 'Utente o evento non specificati' });
+    }
+
+    console.log(`Partecipazione evento richiesta per utente ${id_utente} all'evento ${id_evento}`);
+
+    try {
+        // Recupera la lista degli utenti, o fai altre operazioni per validare l'utente
+        const utenti = await database.getUtenti();
+        const utente = utenti.find(u => u.id === Number(id_utente)); // Assicurati che tu abbia un campo 'id' per identificare l'utente
+        console.log("Lista utenti dal DB:", utenti.map(u => u.id));
+        console.log("Cerco ID:", id_utente);    
+        if (!utente) {
+            return res.status(404).json({ success: false, message: "Utente non trovato" });
+        }
+
+        // Aggiungi l'utente all'evento (esempio di aggiunta alla partecipazione)
+        const result = await database.partecipaEvento(id_utente, id_evento);
+
+        if (result.error) {
+            return res.status(400).json({ success: false, message: result.error });
+        }
+
+        res.json({ success: true, message: 'Partecipazione completata con successo' });
+    } catch (err) {
+        console.error("Errore durante la partecipazione:", err);
+        res.status(500).json({ success: false, message: "Errore durante la partecipazione" });
+    }
+});
+*/
+
+
+
 app.post("/invito", async (req, res) => {
     const { evento_id, mittente_id, destinatario_id, stato, data } = req.body;
+    console.log("Dati ricevuti dal frontend:", { evento_id, mittente_id, destinatario_id, stato, data });
     try {
         await database.invitaUtente(evento_id, mittente_id, destinatario_id, stato, data);
         res.json({ result: "ok" });
     } catch (e) {
+        console.error("Errore durante l'invito:", e.message);
         res.status(500).json({ error: e.message });
     }
 });
@@ -418,7 +466,24 @@ app.delete("/post/:id", async (req, res) => {
       res.status(500).json({ error: "Errore nella cancellazione del post" });
     }
   });
-  
+//invito accettato/rifiutato
+app.put("/invito", async (req, res) => {
+    const { evento_id, utente_destinatario_id, stato } = req.body;
+
+    if (!evento_id || !utente_destinatario_id || !stato) {
+        return res.status(400).json({ error: "Dati mancanti" });
+    }
+
+    try {
+        await database.aggiornaStatoInvito(evento_id, utente_destinatario_id, stato);
+        res.json({ result: "ok" });
+    } catch (e) {
+        console.error("Errore durante l'aggiornamento dello stato dell'invito:", e);
+        res.status(500).json({ error: "Aggiornamento fallito" });
+    }
+});
+
+
 
 // Server HTTP
 const server = http.createServer(app);
