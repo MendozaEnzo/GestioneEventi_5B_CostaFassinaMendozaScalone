@@ -1,18 +1,22 @@
 const nodemailer = require('nodemailer');
 const conf = require('./conf.js');  
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: conf.smtpHost,
+  port: conf.smtpPort,
+  secure: false,
   auth: {
     user: conf.mailFrom,
     pass: conf.mailSecret
   }
 });
 
+
 transporter.verify((err, success) => {
   if (err) {
     console.error(err);
   } else {
     console.log('Configurazione di nodemailer corretta!');
+    
   }
 });
 

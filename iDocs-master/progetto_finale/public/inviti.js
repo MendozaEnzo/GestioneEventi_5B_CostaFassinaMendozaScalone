@@ -152,15 +152,16 @@ function caricaInvitiRicevuti() {
 
     if (!userId) return;
 
-    fetch(`/inviti?utente_id=${userId}`)
+    const listaInviti = document.getElementById('listaInvitiRicevuti');
+    if (!listaInviti) return;
+
+    listaInviti.innerHTML = 'Caricamento inviti...';
+    listaInviti.classList.remove('hidden');
+
+    fetch(`/inviti/${userId}`) 
         .then(res => res.json())
         .then(inviti => {
-            const listaInviti = document.getElementById('listaInvitiRicevuti');
-
-            if (!listaInviti) return;
-
             listaInviti.innerHTML = ''; 
-            listaInviti.classList.remove('hidden');
 
             if (inviti.length === 0) {
                 listaInviti.innerHTML = 'Non hai inviti ricevuti.';
@@ -176,28 +177,27 @@ function caricaInvitiRicevuti() {
                         divInvito.innerHTML = `
                             <h4>${evento.titolo}</h4>
                             <p>Data Evento: ${new Date(evento.data).toLocaleDateString()}</p>
-                            <p>Invitato: ${invito.destinatario_nome}</p>
                             <p>Stato: ${invito.stato}</p>
                             <p>Data Invito: ${new Date(invito.data).toLocaleString()}</p>
-                            <button class="partecipaBtn" data-id="${invito.evento_id}">Partecipa</button>
+                            <button class="partecipaBtn" data-id="${evento.id}">Partecipa</button>
                             <button class="annullaInvitoBtn" data-id="${invito.id}">Annulla Invito</button>
                         `;
                         listaInviti.appendChild(divInvito);
 
                         divInvito.querySelector('.partecipaBtn').onclick = () => {
-                            partecipaEvento(invito.evento_id, userId);
+                            partecipaEvento(evento.id, userId);
                         };
 
                         divInvito.querySelector('.annullaInvitoBtn').onclick = () => {
                             annullaInvito(invito.id);
                         };
                     })
-                    .catch(err => console.error("Errore nel recupero dell'evento:", err));
+                    .catch(err => console.error("Errore nel recupero evento:", err));
             });
         })
         .catch(err => {
-            console.error("Errore nel recupero degli inviti:", err);
-            alert("Impossibile caricare gli inviti ricevuti. Riprova più tardi.");
+            console.error("Errore nel recupero inviti:", err);
+            alert("Impossibile caricare gli inviti.");
         });
 }
 
@@ -237,12 +237,19 @@ function annullaInvito(invitoId) {
 }
 
 window.onload = function () {
+    utenteLoggatoId = parseInt(document.getElementById("userId"));
+
+    
+    const eventoSelector = document.getElementById("eventoSelector");
+    if (eventoSelector) {
+        caricaEventiDisponibili(); 
+    }
+
     const invitaBtn = document.getElementById("invitaBtn");
     if (invitaBtn) {
         invitaBtn.onclick = invitaSelezionati;
     }
 
-    const eventoSelector = document.getElementById("eventoSelector");
     if (eventoSelector) {
         eventoSelector.onchange = function () {
             const eventoId = parseInt(this.value);
@@ -250,6 +257,4 @@ window.onload = function () {
             inizializzaInviti(eventoId, utenteLoggatoId);
         };
     }
-
-    caricaEventiDisponibili();
 };
