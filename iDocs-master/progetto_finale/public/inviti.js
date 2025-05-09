@@ -137,7 +137,7 @@ function invitaSelezionati() {
                         alert(`Inviti inviati con successo! (${invitiInviati} utenti invitati)`); // Alert di conferma
                     }
                 } else {
-                    alert("Errore: " + data.error);
+                    alert("Questo utente partecipa già all'evento");
                 }
             })
             .catch(err => {

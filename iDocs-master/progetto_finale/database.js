@@ -250,11 +250,43 @@ const database = {
             WHERE id = ?
         `, [titolo, descrizione, data, id]);
     },
-    deleteEvento: (id) => {
-        return executeQuery(`
+    deleteEvento: async (id) => {
+    try {
+        // 
+        await executeQuery(`
+            DELETE FROM contenuto
+            WHERE id_post IN (
+                SELECT id FROM post WHERE evento_id = ?
+            )
+        `, [id]);
+
+        // 2. Elimina i post dell'evento
+        await executeQuery(`
+            DELETE FROM post WHERE evento_id = ?
+        `, [id]);
+
+        // 3. Elimina partecipazioni all'evento
+        await executeQuery(`
+            DELETE FROM partecipa WHERE id_evento = ?
+        `, [id]);
+
+        // 4. Elimina inviti dell'evento
+        await executeQuery(`
+            DELETE FROM invito WHERE evento_id = ?
+        `, [id]);
+
+        // 5. Elimina l'evento
+        await executeQuery(`
             DELETE FROM evento WHERE id = ?
         `, [id]);
-    },
+
+        console.log(`Evento con ID ${id} e dati collegati eliminati con successo.`);
+    } catch (error) {
+        console.error("Errore durante la cancellazione dell'evento e dati collegati:", error);
+        throw error;
+    }
+},
+
     rimuoviPartecipazione: (idUtente, idEvento) => {
         return executeQuery(`
             DELETE FROM partecipa
