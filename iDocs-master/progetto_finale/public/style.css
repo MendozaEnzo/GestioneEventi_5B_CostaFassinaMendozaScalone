@@ -351,7 +351,7 @@ body {
 
 /* Main content */
 main {
-  padding-bottom: 60px; /* Spazio per la bottom navigation bar */
+  padding-bottom: 60px; 
 }
 
 .page {
@@ -394,7 +394,7 @@ main {
   border-radius: 8px;
 }
 
-/* Bottom Navigation Bar */
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -432,13 +432,13 @@ main {
   display: none;
 }
 
-/* Media Queries per schermi più grandi */
+
 @media (min-width: 768px) {
   .bottom-nav {
     display: none; 
   }
 }
-/* Stili base per dispositivi mobili */
+
 .dashboard-container {
   padding: 1rem;
   background-color: #f9f9f9;

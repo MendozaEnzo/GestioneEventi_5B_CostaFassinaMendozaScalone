@@ -5,3 +5,6 @@ package.json
 package-lock.json
 conf.js
 ca.pem
+prod.ca.pem
+prod.conf.js
+prod.conf.json
