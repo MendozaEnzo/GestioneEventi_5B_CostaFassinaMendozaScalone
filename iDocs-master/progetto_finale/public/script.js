@@ -1,7 +1,7 @@
-
 import { createLogin } from './login.js';
 import { createNavigator } from "./navigator.js";
 export { caricaDettaglioEvento };
+
 import {
   caricaEventiPubblici,
   caricaEventiPersonali,
@@ -10,20 +10,16 @@ import {
   salvaModificaEvento
 } from "./eventi.js";
 
-
 const loginLink = document.querySelector('.nav-right a[href="#login"]');
 const closeBtn = document.getElementById("closeLogin");
-const aggiungiPostBtn = document.getElementById('aggiungiPostBtn');
-const closeAddPost = document.getElementById('closeAddPost');
 const homeLink = document.querySelector('.nav-left a[href="#homepage"]');
 const searchBtn = document.getElementById('searchBtn');
 const searchInput = document.getElementById('searchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
 const dashboardBtn = document.getElementById("dashboardBtn");
 const addEventBtn = document.getElementById("add-event-btn");
 const closeAddEventBtn = document.getElementById("closeAddEvent");
 const creaEventoBtn = document.getElementById("creaEventoBtn");
-const closeBtnEvento = document.getElementById("closeAddEvent");
-
 
 if (loginLink) {
   loginLink.onclick = (e) => {
@@ -42,10 +38,8 @@ if (closeBtn) {
   };
 }
 
-
 createLogin();
 createNavigator(document.querySelector("main"));
-
 
 if (dashboardBtn) {
   dashboardBtn.onclick = function () {
@@ -53,7 +47,6 @@ if (dashboardBtn) {
     caricaEventiPersonali();
   };
 }
-
 
 if (addEventBtn) {
   addEventBtn.onclick = function () {
@@ -76,42 +69,37 @@ if (creaEventoBtn) {
 function apriModaleEvento() {
   document.getElementById("addEventModal").classList.remove("hidden");
 }
+
 function chiudiModaleEvento() {
   document.getElementById("addEventModal").classList.add("hidden");
 }
 
-
 function filtroEventi() {
-  const searchText = searchInput.value;
+  const searchText = searchInput.value.toLowerCase().trim();
   const eventiContainer = document.getElementById('eventiPubblici');
   const eventi = eventiContainer.querySelectorAll('.evento');
-  const testoRicerca = searchText.toLowerCase().trim();
 
-  if (testoRicerca === '') {
-    for (let i = 0; i < eventi.length; i++) {
-      eventi[i].style.display = 'block';
-    }
-    return;
-  }
+  if (!eventi) return;
 
   for (let i = 0; i < eventi.length; i++) {
     const evento = eventi[i];
-    const titolo = evento.querySelector('h3').textContent.toLowerCase();
-    const descrizione = evento.querySelector('p').textContent.toLowerCase();
-    const data = evento.querySelectorAll('p')[1] ? evento.querySelectorAll('p')[1].textContent.toLowerCase() : '';
-    const creatore = evento.querySelectorAll('p')[2] ? evento.querySelectorAll('p')[2].textContent.toLowerCase() : '';
+    const titolo = evento.querySelector('h3')?.textContent.toLowerCase() || '';
+    const descrizione = evento.querySelector('p')?.textContent.toLowerCase() || '';
+    const data = evento.querySelectorAll('p')[1]?.textContent.toLowerCase() || '';
+    const creatore = evento.querySelectorAll('p')[2]?.textContent.toLowerCase() || '';
 
-    if (titolo.includes(testoRicerca) ||
-        descrizione.includes(testoRicerca) ||
-        data.includes(testoRicerca) ||
-        creatore.includes(testoRicerca)) {
+    if (
+      titolo.includes(searchText) ||
+      descrizione.includes(searchText) ||
+      data.includes(searchText) ||
+      creatore.includes(searchText)
+    ) {
       evento.style.display = 'block';
     } else {
       evento.style.display = 'none';
     }
   }
 }
-
 
 if (searchBtn) {
   searchBtn.onclick = filtroEventi;
@@ -125,10 +113,10 @@ if (searchInput) {
   };
 }
 
-
+// Funzione per ripristinare la ricerca
 function ripristinaEventi() {
-  caricaEventiPubblici();
   searchInput.value = '';
+  caricaEventiPubblici();
 }
 
 if (homeLink) {
@@ -139,18 +127,20 @@ if (homeLink) {
   };
 }
 
+// Bottone ❌ per cancellare la ricerca
+if (clearSearchBtn) {
+  clearSearchBtn.onclick = function () {
+    ripristinaEventi();
+  };
+}
 
 let eventoInModifica = null;
-
 export function apriModaleModifica(evento) {
   eventoInModifica = evento.id;
-
   document.getElementById("editEventTitle").value = evento.titolo;
   document.getElementById("editEventDate").value = evento.data;
   document.getElementById("editEventDescription").value = evento.descrizione;
-
   document.getElementById("editEventModal").classList.remove("hidden");
 }
-
 
 caricaEventiPubblici();

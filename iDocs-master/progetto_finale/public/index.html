@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <nav>
     <div class="nav-left">
       <a href="#homepage">Home</a> 
@@ -21,75 +20,59 @@
       <button id="logoutBtn" class="hidden nav-btn">Logout</button> 
     </div>
   </nav>
-  
-
   <main>
     <!-- Pagina pubblica (Homepage) -->
     <section id="homepage" class="page visible">
       <h2>Bacheca Eventi</h2>
-
       <div class="search-bar">
         <input type="text" id="searchInput" placeholder="cerca eventi: ...">
         <button id="searchBtn">🔍</button>
+        <button id="clearSearchBtn" title="Cancella ricerca">❌</button>
       </div>
-
-      <div id="eventiPubblici" class="eventi-list">
-       
-      </div>
+      <div id="eventiPubblici" class="eventi-list"></div>
     </section>
 
     <!-- Dettaglio evento -->
     <section id="dettaglio" class="page hidden">
       <h2>Dettaglio Evento</h2>
-      <div id="dettaglioEvento">
-        
+      <div id="dettaglioEvento"></div>
+    </section>
+
+    <!-- Dashboard privata -->
+    <section id="dashboard" class="page hidden dashboard-container">
+      <h2>Dashboard privata</h2>
+      <div class="add-event-wrapper">
+        <button id="add-event-btn" class="add-event-btn">+ aggiungi evento</button>
+      </div>
+      <h3>I miei eventi:</h3>
+      <div id="my-events" class="eventi-personali-list"></div>
+      <div id="gestionePostUtente">
+        <h3>I miei post</h3>
+        <div id="listaPostUtente">Caricamento...</div>
+      </div>
+      <div id="invitationSection">
+        <h3>GESTIONE INVITI</h3>
+        <!-- Selettore evento -->
+        <label for="eventoSelector">Seleziona evento:</label>
+        <select id="eventoSelector">
+          <option value="">-- Seleziona evento --</option>
+        </select>
+        <div class="invitation-lists">
+          <div>
+            <h4>UTENTI INVITABILI</h4>
+            <div id="invitableUsersList"></div>
+          </div>
+          <div>
+            <h4>UTENTI INVITATI</h4>
+            <div id="invitedUsersList"></div>
+          </div>
+        </div>
+        <button id="invitaBtn">Invita</button>
+        <div id="listaInvitiRicevuti"></div>
       </div>
     </section>
 
-
-        <!-- Dashboard privata -->
-        <section id="dashboard" class="page hidden dashboard-container">
-          <h2>Dashboard privata</h2>
-        
-          <div class="add-event-wrapper">
-            <button id="add-event-btn" class="add-event-btn">+ aggiungi evento</button>
-          </div>
-          
-        
-          <h3>I miei eventi:</h3>
-          <div id="my-events" class="eventi-personali-list"></div>
-
-          
-          <div id="gestionePostUtente">
-            <h3>I miei post</h3>
-            <div id="listaPostUtente">Caricamento...</div>
-          </div>
-
-          <div id="invitationSection">
-            <h3>GESTIONE INVITI</h3>
-              <!-- Selettore evento -->
-            <label for="eventoSelector">Seleziona evento:</label>
-            <select id="eventoSelector">
-              <option value="">-- Seleziona evento --</option>
-            </select>
-            <div class="invitation-lists">
-              <div>
-                <h4>UTENTI INVITABILI</h4>
-                <div id="invitableUsersList"></div>
-              </div>
-              <div>
-                <h4>UTENTI INVITATI</h4>
-                <div id="invitedUsersList"></div>
-              </div>
-            </div>
-            <button id="invitaBtn">Invita</button>
-            <div id="listaInvitiRicevuti" ></div>
-
-          </div>
-          
-        </section>
-        
-
+    <!-- Modale creazione evento -->
     <div id="addEventModal" class="modal hidden">
       <div class="modal-content">
         <span class="close-btn" id="closeAddEvent">&times;</span>
@@ -100,11 +83,8 @@
         <button id="creaEventoBtn">Crea</button>
       </div>
     </div>
-    
 
-    
-
-    <!-- Modal di login -->
+    <!-- Modale login -->
     <div id="loginModal" class="modal hidden">
       <div class="modal-content">
         <span id="closeLogin" class="close-btn">&times;</span>
@@ -119,7 +99,7 @@
       </div>
     </div>
 
-    <!-- Modal per la registrazione -->
+    <!-- Modale registrazione -->
     <div id="registerModal" class="modal hidden">
       <div class="modal-content">
         <span id="closeRegister" class="close-btn">&times;</span>
@@ -129,88 +109,76 @@
         <button id="registerBtn">Registrati</button>
       </div>
     </div>
-  <!-- Modale per modifica evento -->
-<div id="editEventModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close-btn" id="closeEditEvent">&times;</span>
-    <h2>Modifica Evento</h2>
-    <input type="text" id="editEventTitle" placeholder="Titolo evento" />
-    <input type="date" id="editEventDate" />
-    <textarea id="editEventDescription" placeholder="Descrizione evento" rows="4"></textarea>
-    <button id="salvaModificaBtn">Salva Modifiche</button>
-  </div>
-</div>
 
-<!-- Modale per aggiungere un post -->
-<div id="aggiungiPostModal" class="modal hidden">
-  <div class="modal-content">
-    <h2>Aggiungi Post</h2>
-    
-    <!-- post-->
-    <div id="postInfoSection">
-      <div class="form-group">
-        <label for="postTipo">Tipo del Post:</label>
-        <input type="text" id="postTipo" placeholder="Es. Notizia, Commento, Annuncio" required>
+    <!-- Modale modifica evento -->
+    <div id="editEventModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn" id="closeEditEvent">&times;</span>
+        <h2>Modifica Evento</h2>
+        <input type="text" id="editEventTitle" placeholder="Titolo evento" />
+        <input type="date" id="editEventDate" />
+        <textarea id="editEventDescription" placeholder="Descrizione evento" rows="4"></textarea>
+        <button id="salvaModificaBtn">Salva Modifiche</button>
       </div>
-
-
-      <button id="nextStepBtn">Avanti</button>
     </div>
 
-    <!-- contenuto-->
-    <div id="postContentSection" class="hidden">
-      <label for="contentTitle">Titolo del Post:</label>
-      <input type="text" id="contentTitle" required>
-      <br><br>
-
-      <label for="postContent">File da caricare:</label>
-      <input type="file" id="fileContent" required>
-      <br><br>
-
-      <button id="savePostContentBtn">Salva Post</button>
+    <!-- Modale aggiungi post -->
+    <div id="aggiungiPostModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Aggiungi Post</h2>
+        <div id="postInfoSection">
+          <div class="form-group">
+            <label for="postTipo">Tipo del Post:</label>
+            <input type="text" id="postTipo" placeholder="Es. Notizia, Commento, Annuncio" required>
+          </div>
+          <button id="nextStepBtn">Avanti</button>
+        </div>
+        <div id="postContentSection" class="hidden">
+          <label for="contentTitle">Titolo del Post:</label>
+          <input type="text" id="contentTitle" required>
+          <br><br>
+          <label for="fileContent">File da caricare:</label>
+          <input type="file" id="fileContent" required>
+          <br><br>
+          <button id="savePostContentBtn">Salva Post</button>
+        </div>
+        <button id="closeModalBtn">Chiudi</button>
+      </div>
     </div>
 
-    <button id="closeModalBtn">Chiudi</button>
-  </div>
-</div>
-<!-- Modale per modificare il post -->
-<div id="modalPost" class="modal hidden">
-  <div class="modal-content">
-      <span id="closeModal" class="close">&times;</span>
-      <h2>Modifica Post</h2>
-      <form id="updatePostForm">
+    <!-- Modale modifica post -->
+    <div id="modalPost" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <h2>Modifica Post</h2>
+        <form id="updatePostForm">
           <div>
-              <label for="tipo">Tipo:</label>
-              <input type="text" id="tipo" name="tipo" required />
+            <label for="tipo">Tipo:</label>
+            <input type="text" id="tipo" name="tipo" required />
           </div>
           <div>
-              <label for="evento_id">ID Evento (Non modificabile):</label>
-              <input type="text" id="evento_id" name="evento_id" disabled />
+            <label for="evento_id">ID Evento (Non modificabile):</label>
+            <input type="text" id="evento_id" name="evento_id" disabled />
           </div>
           <div>
-              <label for="data_post">Data Post:</label>
-              <input type="datetime-local" id="data_post" name="data_post" required />
+            <label for="data_post">Data Post:</label>
+            <input type="datetime-local" id="data_post" name="data_post" required />
           </div>
           <div>
-              <label for="contenuti_url">URL del Contenuto:</label>
-              <input type="file" id="contenuti_url" name="contenuti_url" placeholder="Inserisci URL" required />
+            <label for="contenuti_url">URL del Contenuto:</label>
+            <input type="file" id="contenuti_url" name="contenuti_url" placeholder="Inserisci URL" required />
           </div>
           <div>
-              <label for="contenuti_tipo">Tipo del Contenuto (Titolo):</label>
-              <input type="text" id="contenuti_tipo" name="contenuti_tipo" placeholder="Titolo del contenuto" required />
+            <label for="contenuti_tipo">Tipo del Contenuto (Titolo):</label>
+            <input type="text" id="contenuti_tipo" name="contenuti_tipo" placeholder="Titolo del contenuto" required />
           </div>
           <button type="submit">Aggiorna</button>
-      </form>
-  </div>
-</div>
-
-
-
-
-
-
+        </form>
+      </div>
+    </div>
   </main>
 
+  <!-- Script -->
   <script type="module" src="navigator.js"></script>
   <script type="module" src="script.js"></script>
   <script type="module" src="login.js"></script>
