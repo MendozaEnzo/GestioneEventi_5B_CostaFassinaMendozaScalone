@@ -242,7 +242,7 @@ button, a {
 }
 
 .evento button:hover {
-  background-color: #45a049;
+  background-color: #4c5a18;
 }
 
 .dashboard-container {
@@ -327,4 +327,230 @@ button, a {
 }
 .form-group {
   margin-bottom: 1rem;
+}
+/* Reset base */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.site-header {
+  text-align: center;
+  background-color: #2184ae;
+  padding: 1rem;
+  color: white;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #ffcc00;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Main content */
+main {
+  padding-bottom: 60px; 
+}
+
+.page {
+  display: none;
+}
+
+.page.visible {
+  display: block;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.search-bar button {
+  padding: 0.5rem;
+  font-size: 16px;
+}
+
+.eventi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.evento {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #2184ae;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-btn a {
+  color: white;
+  text-decoration: none;
+}
+
+.hidden {
+  display: none;
+}
+
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none; 
+  }
+}
+
+.dashboard-container {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+.add-event-wrapper {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.add-event-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-event-btn:hover {
+  background-color: #45a049;
+}
+
+.eventi-personali-list,
+#listaPostUtente,
+.invitation-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eventi-personali-list div,
+#listaPostUtente div,
+.invitation-lists div {
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Media Queries per schermi più grandi */
+@media (min-width: 768px) {
+  .dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .invitation-lists {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .invitation-lists div {
+    width: 48%;
+  }
+}
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+.invitation-lists {
+  display: flex;
+  gap: 1rem;
+}
+
+.invitation-lists div {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #333;
 }
