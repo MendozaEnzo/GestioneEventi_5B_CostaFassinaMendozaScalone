@@ -79,6 +79,18 @@ function chiudiModaleEvento() {
   document.getElementById("addEventModal").classList.add("hidden");
 }
 
+if (searchBtn) {
+  searchBtn.onclick = filtroEventi;
+}
+
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+if (clearSearchBtn) {
+  clearSearchBtn.onclick = function () {
+    searchInput.value = '';
+    filtroEventi();
+  };
+}
+
 
 function filtroEventi() {
   const searchText = searchInput.value;
