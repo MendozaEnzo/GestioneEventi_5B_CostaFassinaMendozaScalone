@@ -17,7 +17,6 @@ export async function caricaPostEvento(eventoId) {
     const posts = await response.json();
 
     container.innerHTML = ''; 
-
     if (posts.length === 0) {
       container.innerHTML = '<p>Nessun post ancora.</p>';
     } else {
@@ -28,7 +27,7 @@ export async function caricaPostEvento(eventoId) {
       let contentHtml = '';
 
       
-      if (post.url.match(/\.(jpeg|jpg|gif|png)$/)) {
+      if (typeof post.url === 'string' && post.url.match(/\.(jpeg|jpg|gif|png)$/)) {
         contentHtml = `<img src="${post.url}" alt="Contenuto immagine" style="max-width: 100%; max-height: 300px; height: auto;">`;
       }
       
@@ -140,6 +139,7 @@ export async function aggiungiPost(eventoId) {
   savePostBtn.onclick = async () => {
     const contentTitle = document.getElementById('contentTitle').value.trim();
     const fileContent = document.getElementById('fileContent').files[0];
+    console.log("file duro: ",fileContent);
     const idPostStr = sessionStorage.getItem('id_post');
 
     if (!idPostStr || isNaN(parseInt(idPostStr, 10))) {
@@ -159,7 +159,7 @@ export async function aggiungiPost(eventoId) {
     formData.append('file', fileContent);
     formData.append('tipo', contentTitle);
     formData.append('id_post', idPost);
-
+    console.log("do questo: ",formData);
     try {
       const res = await fetch('/contenuto', {
         method: 'POST',
@@ -198,7 +198,7 @@ export async function caricaPostUtente() {
   try {
     const res = await fetch(`/post/utente/${userId}`);
     const posts = await res.json();
-
+    console.log("post dell utente: ",posts);
     if (posts.length === 0) {
       container.innerHTML = "<p>Non hai ancora creato post.</p>";
     } else {
