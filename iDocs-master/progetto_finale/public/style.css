@@ -245,3 +245,215 @@ button, a {
   gap: 30px;
   margin-bottom: 50px;
 }
+
+.evento {
+  align-items: center;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  padding: 20px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.evento:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.evento h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: #333;
+}
+
+.evento p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #444;
+}
+
+.evento button {
+  margin-top: 10px;
+  align-self: flex-end;
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.evento button:hover {
+  background-color: #4c5a18;
+}
+
+.dashboard-container {
+  background-color: #f9f9f9;
+  padding: 30px;
+  max-width: 600px;
+  margin: 0 auto;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 600px;
+  overflow-x: hidden;
+}
+
+.add-event-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.add-event-btn {
+  padding: 15px 30px;
+  font-size: 18px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-event-btn:hover {
+  background-color: #45a049;
+}
+
+.eventi-personali-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.evento-personale {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #aaa;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.evento-personale .info {
+  display: flex;
+  flex-direction: column;
+}
+
+.evento-personale .info h4 {
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+
+.evento-personale .info p {
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.evento-personale button {
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.invitation-box {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin-top: 1em;
+}
+.invitation-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+
+.invitation-lists div {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 1em;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+/* Reset base */
+body {
+  height: auto;
+  overflow-y: auto;
+  background-color: #f0f4f8;
+  color: #333;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  align-items: start;
+}
+
+.site-header {
+  text-align: center;
+  background-color: #2184ae;
+  padding: 1rem;
+  color: white;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #ffcc00;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Main content */
+main {
+  padding-top: 0;
+  margin-top: 0;
+}
+
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.search-bar button {
+  padding: 0.5rem;
+  font-size: 16px;
+}
+
+
+.evento {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
